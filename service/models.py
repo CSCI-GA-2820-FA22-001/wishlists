@@ -78,7 +78,7 @@ class Wishlists(db.Model):
             else:
                 raise DataValidationError(
                     "Invalid type for integer [customer_id]: "
-                    + str(type(data["available"]))
+                    + str(type(data["customer_id"]))
                 )
         except KeyError as error:
             raise DataValidationError("Invalid Wishlist : missing " + error.args[0])

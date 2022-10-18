@@ -41,7 +41,7 @@ def create_pets():
     wishlist.deserialize(request.get_json())
     wishlist.create()
     message = wishlist.serialize()
-    location_url = url_for("get_wishlist", pet_id=wishlist.id, _external=True)
+    location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
     app.logger.info("Wishlist with ID [%s] created.", wishlist.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
