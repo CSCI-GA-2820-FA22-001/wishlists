@@ -25,20 +25,87 @@ def index():
         status.HTTP_200_OK,
     )
 
-@app.route("/wishlists", methods=["POST"])
-def create_wishlist():
-    data = json.loads(request.data)
-    try:
-        name = data['name']
-        customer_id = data['customer_id'] 
-        wishlist = Wishlists(name=name,customer_id=customer_id)
-        wishlist.create()
-        return (wishlist.serialize(),
-        status.HTTP_200_OK,
-    )
 
-    except KeyError as e:
-        pass
+######################################################################
+# CREATE A NEW WISHLIST
+######################################################################
+@app.route("/wishlists", methods=["POST"])
+def create_pets():
+    """
+    Creates a Wishlist
+    This endpoint will create a Wishlist based the data in the body that is posted
+    """
+    app.logger.info("Request to create a pet")
+    check_content_type("application/json")
+    wishlist = Wishlists()
+    wishlist.deserialize(request.get_json())
+    wishlist.create()
+    message = wishlist.serialize()
+    location_url = url_for("get_wishlist", pet_id=wishlist.id, _external=True)
+    app.logger.info("Wishlist with ID [%s] created.", wishlist.id)
+    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
+
+######################################################################
+# RETRIEVE A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlists(wishlist_id):
+    """
+    Retrieve a single wishlist
+
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for wishlist with id: %s", wishlist_id)
+    wishlist = Wishlists.find(wishlist_id)
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found.")
+
+    app.logger.info("Returning wishlist: %s", wishlist.name)
+    return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+
+
+######################################################################
+# CREATE A NEW ITEM TO WISHLIST
+######################################################################
+@app.route("/wishlist/<int:wishlist_id>/items", methods=["POST"])
+def create_item(wishlist_id):
+    """
+    Creates a Pet
+    This endpoint will create a Pet based the data in the body that is posted
+    """
+    app.logger.info("Request to create a new item in a wishlist")
+    check_content_type("application/json")
+    item = Items()
+    data = request.get_json()
+    data["wishlist_id"] = wishlist_id
+    item.deserialize(data)
+    item.create()
+    message = item.serialize()
+    location_url = url_for("get_items", wishlist_id = wishlist_id, item_id=item.id, _external=True)
+
+    app.logger.info("Wishlist Item with ID [%s] created.", item.id)
+    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
+######################################################################
+# RETRIEVE A WISHLIST ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+def get_items(wishlist_id, item_id):
+    """
+    Retrieve a single wishlist
+
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for items with id: %s", str(item_id))
+    item = Items.find(item_id)
+    if not item:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with id '{item_id}' was not found.")
+
+    app.logger.info("Returning wishlist item: %s", item.name)
+    return jsonify(item.serialize()), status.HTTP_200_OK
+
 
 
 
@@ -46,6 +113,25 @@ def create_wishlist():
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
+def check_content_type(content_type):
+    """Checks that the media type is correct"""
+    if "Content-Type" not in request.headers:
+        app.logger.error("No Content-Type specified.")
+        abort(
+            status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            f"Content-Type must be {content_type}",
+        )
+
+    if request.headers["Content-Type"] == content_type:
+        return
+
+    app.logger.error("Invalid Content-Type: %s", request.headers["Content-Type"])
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        f"Content-Type must be {content_type}",
+    )
+
 
 
 def init_db():
