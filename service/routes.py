@@ -69,7 +69,7 @@ def get_wishlists(wishlist_id):
 ######################################################################
 # CREATE A NEW ITEM TO WISHLIST
 ######################################################################
-@app.route("/wishlist/<int:wishlist_id>/items", methods=["POST"])
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
 def create_item(wishlist_id):
     """
     Creates a Pet

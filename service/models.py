@@ -223,7 +223,7 @@ class Items(db.Model):
 
             if data.get("price", None):
                 if isinstance(data["price"], int):
-                    self.rank = data["price"]
+                    self.price = data["price"]
                 else:
                     raise DataValidationError(
                         "Invalid type for integer [price]: "
