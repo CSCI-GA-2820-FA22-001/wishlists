@@ -205,6 +205,13 @@ class Items(db.Model):
                 )
 
             if isinstance(data["wishlist_id"], int):
+                wishlist = Wishlists.find(data["wishlist_id"])
+                if not wishlist:
+                    raise DataValidationError(
+                        "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
+
+                    )
+
                 self.wishlist_id = data["wishlist_id"]
             else:
                 raise DataValidationError(
