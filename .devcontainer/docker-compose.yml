@@ -1,5 +1,5 @@
 ---
-# Python 3 with PostgreSQL
+# Python 3 with MySQL
 version: "3"
 
 services:
@@ -16,25 +16,29 @@ services:
       FLASK_APP: service:app
       FLASK_ENV: development
       PORT: 8000
-      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/postgres
+      DATABASE_URI: mysql+mysqldb://root:pass@mysql/db
     networks:
       - dev
     depends_on:
-      - postgres
+      - mysql
 
-  postgres:
-    image: postgres:alpine
-    # ports:
-    #   - 5432:5432
+  mysql:
+    image: mysql/mysql-server:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3307:3306" # Hardcoded here to 3307 because docker-compose in the VS Code Devcontainer setup is run
+      # from the users shell on the host OS where the env vars are not yet set
     environment:
-      POSTGRES_PASSWORD: postgres
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: db
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     networks:
       - dev
 
 volumes:
-  postgres:
+  mysql_data:
 
 networks:
   dev:
