@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Test cases for Wishlists, Items Models
+Test cases for Wishlists Models
 
 Test cases can be run with:
     nosetests
@@ -39,7 +39,7 @@ DATABASE_URI = os.getenv(
 
 
 ######################################################################
-#  P E T   M O D E L   T E S T   C A S E S
+#  WISHLISTS   M O D E L   T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
 class TestWishlistsModel(unittest.TestCase):
