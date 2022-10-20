@@ -26,11 +26,10 @@ While debugging just these tests it's convenient to use this:
 import os
 import logging
 import unittest
-from datetime import date
 from werkzeug.exceptions import NotFound
-from service.models import Wishlists, Items, DataValidationError, db
+from service.models import Wishlists, DataValidationError, db,
 from service import app
-from tests.factories import WishlistsFactory, ItemsFactory
+from tests.factories import WishlistsFactory
 import datetime
 
 DATABASE_URI = os.getenv(
@@ -76,7 +75,7 @@ class TestWishlistsModel(unittest.TestCase):
         """It should Create a wishlist and assert that it exists"""
         current_time = datetime.datetime.now()
         wishlist = Wishlists(name="wishlist-1", customer_id=1, created_on=current_time)
-        self.assertEqual(str(wishlist), "<Wishlist wishlist-1 id=[None]>")
+        self.assertEqual(str(wishlist), "<Wishlist 'wishlist-1' id=[None]>")
         self.assertTrue(wishlist is not None)
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, "wishlist-1")
@@ -239,7 +238,7 @@ class TestWishlistsModel(unittest.TestCase):
         for wishlist in wishlists:
             wishlist.create()
         name = wishlists[0].name
-        found = wishlists.find_by_name(name)
+        found = Wishlists.find_by_name(name)
         self.assertEqual(found.count(), 1)
         self.assertEqual(found[0].customer_id, wishlists[0].customer_id)
         self.assertEqual(found[0].created_on, wishlists[0].created_on)

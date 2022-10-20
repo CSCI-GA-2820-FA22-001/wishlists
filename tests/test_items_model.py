@@ -26,9 +26,8 @@ While debugging just these tests it's convenient to use this:
 import os
 import logging
 import unittest
-from datetime import date
 from werkzeug.exceptions import NotFound
-from service.models import Items, DataValidationError, db
+from service.models import Items, DataValidationError, db, not_found
 from service import app
 from tests.factories import ItemsFactory
 import datetime
@@ -77,7 +76,7 @@ class TestItemsModel(unittest.TestCase):
         current_time = datetime.datetime.now()
         item = Items(name="item-1", wishlist_id=1, rank=1, quantity=1, price=100, created_on=current_time,
                      updated_on=current_time)
-        self.assertEqual(str(item), "<Items item-1 id=[None]>")
+        self.assertEqual(str(item), "<Items 'item-1' id=[None]>")
         self.assertTrue(item is not None)
         self.assertEqual(item.id, None)
         self.assertEqual(item.name, "item-1")

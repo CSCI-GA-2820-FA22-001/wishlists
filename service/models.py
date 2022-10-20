@@ -6,6 +6,8 @@ All of the models are stored in this module
 import logging
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+from werkzeug.exceptions import NotFound
+
 
 logger = logging.getLogger("flask.app")
 
@@ -49,6 +51,8 @@ class Wishlists(db.Model):
         Updates a wishlist to the database
         """
         logger.info("Saving %s", self.name)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
@@ -61,7 +65,7 @@ class Wishlists(db.Model):
         """ Serializes a wishlist into a dictionary """
         return {"id": self.id,
                 "name": self.name,
-                "created_by": self.customer_id,
+                "customer_id": self.customer_id,
                 "created_on": self.created_on}
 
     def deserialize(self, data):
@@ -81,11 +85,11 @@ class Wishlists(db.Model):
                     + str(type(data["customer_id"]))
                 )
         except KeyError as error:
-            raise DataValidationError("Invalid Wishlist : missing " + error.args[0])
+            raise DataValidationError("Invalid Wishlist : missing " + str(error.args[0]))
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data - "
-                "Error message: " + error
+                "Invalid Wishlist: body of request contained bad or no data - "
+                "Error message: " + str(error)
             )
         return self
 
@@ -102,7 +106,7 @@ class Wishlists(db.Model):
     @classmethod
     def all(cls):
         """ Returns all of the wishlist in the database """
-        logger.info("Processing all YourResourceModels")
+        logger.info("Processing all WishlistsModels")
         return cls.query.all()
 
     @classmethod
@@ -116,7 +120,7 @@ class Wishlists(db.Model):
         """Returns all wishlists with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the WishlistsModels you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
@@ -126,10 +130,19 @@ class Wishlists(db.Model):
         """Returns all wishlists with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the WishlistsModels you want to match
         """
         logger.info("Processing customer id query for %s ...", str(customer_id))
         return cls.query.filter(cls.customer_id == customer_id)
+
+    @classmethod
+    def find_or_404(cls, by_id):
+        """ Finds a wishlist item by it's ID """
+        logger.info("Processing lookup for id %s ...", by_id)
+        wishlist = cls.query.get(by_id)
+        if not wishlist:
+            raise NotFound("Wishlist not found id : " + str(by_id))
+        return wishlist
 
 
 class Items(db.Model):
@@ -167,6 +180,8 @@ class Items(db.Model):
         Updates a wishlist item to the database
         """
         logger.info("Saving %s", self.name)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
         db.session.commit()
 
     def delete(self):
@@ -189,7 +204,7 @@ class Items(db.Model):
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a WishlistsModel from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -247,11 +262,11 @@ class Items(db.Model):
                     )
 
         except KeyError as error:
-            raise DataValidationError("Invalid Item : missing " + error.args[0])
+            raise DataValidationError("Invalid Item : missing " + str(error.args[0]))
         except TypeError as error:
             raise DataValidationError(
-                "Invalid YourResourceModel: body of request contained bad or no data - "
-                "Error message: " + error
+                "Invalid WishlistsModel: body of request contained bad or no data - "
+                "Error message: " + str(error)
             )
         return self
 
@@ -268,7 +283,7 @@ class Items(db.Model):
     @classmethod
     def all(cls):
         """ Returns all of the wishlist items in the database """
-        logger.info("Processing all YourResourceModels")
+        logger.info("Processing all WishlistsModels")
         return cls.query.all()
 
     @classmethod
@@ -282,7 +297,7 @@ class Items(db.Model):
         """Returns all wishlists items with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the WishlistsModels you want to match
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
@@ -292,7 +307,16 @@ class Items(db.Model):
         """Returns all wishlists items with the given name
 
         Args:
-            name (string): the name of the YourResourceModels you want to match
+            name (string): the name of the WishlistsModels you want to match
         """
         logger.info("Processing wishlist id query for %s ...", str(wishlist_id))
         return cls.query.filter(cls.wishlist_id == wishlist_id)
+
+    @classmethod
+    def find_or_404(cls, by_id):
+        """ Finds a wishlist item by it's ID """
+        logger.info("Processing lookup for id %s ...", by_id)
+        item = cls.query.get(by_id)
+        if not item:
+            raise NotFound("Item not found id : " + str(by_id))
+        return item
