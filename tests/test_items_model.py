@@ -27,9 +27,9 @@ import os
 import logging
 import unittest
 from werkzeug.exceptions import NotFound
-from service.models import Items, DataValidationError, db, not_found
+from service.models import Wishlists,Items, DataValidationError, db
 from service import app
-from tests.factories import ItemsFactory
+from tests.factories import ItemsFactory, WishlistsFactory
 import datetime
 
 DATABASE_URI = os.getenv(
@@ -52,6 +52,8 @@ class TestItemsModel(unittest.TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         Items.init_db(app)
+        Wishlists.init_db(app)
+
 
     @classmethod
     def tearDownClass(cls):
@@ -61,6 +63,7 @@ class TestItemsModel(unittest.TestCase):
     def setUp(self):
         """This runs before each test"""
         db.session.query(Items).delete()  # clean up the last tests
+        db.session.query(Wishlists).delete()  # clean up the wishlists
         db.session.commit()
 
     def tearDown(self):
@@ -92,7 +95,10 @@ class TestItemsModel(unittest.TestCase):
         items = Items.all()
         self.assertEqual(items, [])
         current_time = datetime.datetime.now()
-        item = Items(name="item-1", wishlist_id=1, product_id=1, rank=1, quantity=1, price=100, created_on=current_time,
+        wishlist = WishlistsFactory()
+        wishlist.id=None
+        wishlist.create()
+        item = Items(name="item-1", wishlist_id=wishlist.id, product_id=1, rank=1, quantity=1, price=100, created_on=current_time,
                      updated_on=current_time)
         self.assertTrue(item is not None)
         self.assertEqual(item.id, None)
@@ -104,9 +110,13 @@ class TestItemsModel(unittest.TestCase):
 
     def test_read_a_item(self):
         """It should Read a item"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         item = ItemsFactory()
         logging.debug(item)
         item.id = None
+        item.wishlist_id = wishlist.id
         item.create()
         self.assertIsNotNone(item.id)
         # Fetch it back
@@ -123,35 +133,48 @@ class TestItemsModel(unittest.TestCase):
 
     def test_update_a_item(self):
         """It should Update a item"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         item = ItemsFactory()
+        item.wishlist_id = wishlist.id
         logging.debug(item)
         item.id = None
+        item.product_id=1
         item.create()
         logging.debug(item)
         self.assertIsNotNone(item.id)
         # Change it an save it
-        item.wishlist_id = 2
+        item.product_id = 2
         original_id = item.id
         item.update()
         self.assertEqual(item.id, original_id)
-        self.assertEqual(item.wishlist_id, 2)
+        self.assertEqual(item.product_id, 2)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         items = Items.all()
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].id, original_id)
-        self.assertEqual(items[0].wishlist_id, 2)
+        self.assertEqual(items[0].product_id, 2)
 
     def test_update_no_id(self):
         """It should not Update a item with no id"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         item = ItemsFactory()
         logging.debug(item)
         item.id = None
+        item.wishlist_id = wishlist.id
         self.assertRaises(DataValidationError, item.update)
 
     def test_delete_a_item(self):
         """It should Delete a item"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         item = ItemsFactory()
+        item.wishlist_id = wishlist.id
         item.create()
         self.assertEqual(len(Items.all()), 1)
         # delete the item and make sure it isn't in the database
@@ -160,11 +183,15 @@ class TestItemsModel(unittest.TestCase):
 
     def test_list_all_items(self):
         """It should List all items in the database"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         items = Items.all()
         self.assertEqual(items, [])
         # Create 5 items
         for _ in range(5):
             item = ItemsFactory()
+            item.wishlist_id = wishlist.id
             item.create()
         # See if we get back 5 items
         items = Items.all()
@@ -172,6 +199,9 @@ class TestItemsModel(unittest.TestCase):
 
     def test_serialize_a_item(self):
         """It should serialize a item"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         item = ItemsFactory()
         data = item.serialize()
         self.assertNotEqual(data, None)
@@ -196,7 +226,12 @@ class TestItemsModel(unittest.TestCase):
 
     def test_deserialize_a_item(self):
         """It should de-serialize a item"""
-        data = ItemsFactory().serialize()
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
+        item = ItemsFactory()
+        item.wishlist_id = wishlist.id
+        data = item.serialize()
         item = Items()
         item.deserialize(data)
         self.assertNotEqual(item, None)
@@ -230,6 +265,9 @@ class TestItemsModel(unittest.TestCase):
 
     def test_deserialize_bad_product_id(self):
         """It should not deserialize a bad customer_id attribute"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         test_item = ItemsFactory()
         data = test_item.serialize()
         data["product_id"] = "1"
@@ -238,6 +276,9 @@ class TestItemsModel(unittest.TestCase):
 
     def test_deserialize_bad_price(self):
         """It should not deserialize a bad customer_id attribute"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         test_item = ItemsFactory()
         data = test_item.serialize()
         data["price"] = "1"
@@ -246,6 +287,9 @@ class TestItemsModel(unittest.TestCase):
 
     def test_deserialize_bad_quantity(self):
         """It should not deserialize a bad customer_id attribute"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         test_item = ItemsFactory()
         data = test_item.serialize()
         data["quantity"] = "1"
@@ -254,6 +298,9 @@ class TestItemsModel(unittest.TestCase):
 
     def test_deserialize_bad_rank(self):
         """It should not deserialize a bad customer_id attribute"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         test_item = ItemsFactory()
         data = test_item.serialize()
         data["rank"] = "1"
@@ -262,8 +309,12 @@ class TestItemsModel(unittest.TestCase):
 
     def test_find_item(self):
         """It should Find a item by ID"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         items = ItemsFactory.create_batch(5)
         for item in items:
+            item.wishlist_id = wishlist.id
             item.create()
         logging.debug(items)
         # make sure they got saved
@@ -283,8 +334,12 @@ class TestItemsModel(unittest.TestCase):
 
     def test_find_by_wishlist_id(self):
         """It should Find items by wishlist id"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         items = ItemsFactory.create_batch(10)
         for item in items:
+            item.wishlist_id = wishlist.id
             item.create()
         wishlist_id = items[0].wishlist_id
         count = len([item for item in items if item.wishlist_id == wishlist_id])
@@ -295,8 +350,12 @@ class TestItemsModel(unittest.TestCase):
 
     def test_find_by_name(self):
         """It should Find a item by Name"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         items = ItemsFactory.create_batch(5)
         for item in items:
+            item.wishlist_id = wishlist.id
             item.create()
         name = items[0].name
         found = Items.find_by_name(name)
@@ -312,8 +371,12 @@ class TestItemsModel(unittest.TestCase):
 
     def test_find_or_404_found(self):
         """It should Find or return 404 not found"""
+        wishlist = WishlistsFactory()
+        wishlist.id = None
+        wishlist.create()
         items = ItemsFactory.create_batch(3)
         for item in items:
+            item.wishlist_id = wishlist.id
             item.create()
 
         item = Items.find_or_404(items[1].id)

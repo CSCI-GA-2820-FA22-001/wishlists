@@ -40,6 +40,7 @@ class WishlistsFactory(factory.Factory):
 class ItemsFactory(factory.Factory):
     """Creates fake pets that you don't have to feed"""
 
+
     class Meta:  # pylint: disable=too-few-public-methods
         """Maps factory to data model"""
 
@@ -47,8 +48,8 @@ class ItemsFactory(factory.Factory):
 
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("name")
-    wishlist_id = FuzzyChoice(choices=[1, 2,3])
-    product_id = factory.Sequence(lambda n: n)
+    wishlist_id = 1
+    product_id = FuzzyChoice(choices=[1, 2,3])
     rank = FuzzyChoice(choices=[1, 2,3])
     quantity = FuzzyChoice(choices=[1, 2,3])
     price = FuzzyChoice(choices=[100, 200,300])

@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from werkzeug.exceptions import NotFound
-from service.models import Wishlists, DataValidationError, db,
+from service.models import Wishlists, DataValidationError, db
 from service import app
 from tests.factories import WishlistsFactory
 import datetime
@@ -182,7 +182,6 @@ class TestWishlistsModel(unittest.TestCase):
         self.assertEqual(wishlist.id, None)
         self.assertEqual(wishlist.name, data["name"])
         self.assertEqual(wishlist.customer_id, data["customer_id"])
-        self.assertEqual(wishlist.created_on, data["created_on"])
 
     def test_deserialize_missing_data(self):
         """It should not deserialize a wishlist with missing data"""
