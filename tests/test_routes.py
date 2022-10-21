@@ -83,7 +83,9 @@ class TestWishlistsService(TestCase):
             test_wishlists = WishlistsFactory()
             response = self.client.post(BASE_URL, json=test_wishlists.serialize())
             self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, "Could not create test wishlist"
+                response.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test wishlist",
             )
             new_wishlist = response.get_json()
             test_wishlists.id = new_wishlist["id"]
@@ -142,6 +144,22 @@ class TestWishlistsService(TestCase):
         response = self.client.get(f"{BASE_URL}/{test_wishlist['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_rename_wishlist(self):
+        """It should rename the wishlist."""
+        test_wishlist = self._create_wishlists(1)[0]
+        response = self.client.put(
+            f"{BASE_URL}/{test_wishlist['id']}/rename", json={"name": "Test Rename"}
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        renamed_wishlist = response.get_json()
+        self.assertEqual(renamed_wishlist['name'],'Test Rename')
+        
+        response = self.client.get(f"{BASE_URL}/{test_wishlist['id']}")
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+        wishlist = response.get_json()
+        self.assertEqual(wishlist["name"], 'Test Rename')
+
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E
@@ -182,11 +200,13 @@ class TestItemsService(TestCase):
             test_wishlist.id = None
             test_wishlist.create()
             test_item = ItemsFactory()
-            test_item.wishlist_id =test_wishlist.id
+            test_item.wishlist_id = test_wishlist.id
             URL = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
             response = self.client.post(URL, json=test_item.serialize())
             self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, "Could not create test item"
+                response.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test item",
             )
             new_item = response.get_json()
             test_item.id = new_item["id"]
@@ -241,18 +261,13 @@ class TestItemsService(TestCase):
         self.assertEqual(new_item["name"], test_item.name)
         self.assertEqual(new_item["product_id"], test_item.product_id)
 
-
     def test_delete_item(self):
         """It should Delete a Item"""
         test_item = self._create_items(1)[0]
-        URL = BASE_URL + "/" + str(test_item['wishlist_id']) + "/items"
+        URL = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
         response = self.client.delete(f"{URL}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
         # make sure they are deleted
         response = self.client.get(f"{URL}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-
-
-
