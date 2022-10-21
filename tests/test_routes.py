@@ -183,7 +183,8 @@ class TestItemsService(TestCase):
             test_wishlist.create()
             test_item = ItemsFactory()
             test_item.wishlist_id =test_wishlist.id
-            response = self.client.post(BASE_URL, json=test_item.serialize())
+            URL = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
+            response = self.client.post(URL, json=test_item.serialize())
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, "Could not create test item"
             )
@@ -239,6 +240,18 @@ class TestItemsService(TestCase):
         new_item = response.get_json()
         self.assertEqual(new_item["name"], test_item.name)
         self.assertEqual(new_item["product_id"], test_item.product_id)
+
+
+    def test_delete_item(self):
+        """It should Delete a Item"""
+        test_item = self._create_items(1)[0]
+        URL = BASE_URL + "/" + str(test_item['wishlist_id']) + "/items"
+        response = self.client.delete(f"{URL}/{test_item['id']}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0)
+        # make sure they are deleted
+        response = self.client.get(f"{URL}/{test_item['id']}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 
