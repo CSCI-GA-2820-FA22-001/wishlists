@@ -3,9 +3,11 @@ My Service
 Describe what your service does here
 """
 
+from email.policy import HTTP
+from itertools import product
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from .common import status  # HTTP Status Codes
-from service.models import Wishlists,Items
+from service.models import Wishlists, Items
 from flask import request, jsonify
 import json
 
@@ -20,6 +22,7 @@ from . import app
 def healthcheck():
     """Let them know our heart is still beating"""
     return jsonify(status=200, message="Healthy"), status.HTTP_200_OK
+
 
 ######################################################################
 # GET INDEX
@@ -58,7 +61,6 @@ def create_wishlists():
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
-
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
@@ -68,7 +70,10 @@ def get_wishlists(wishlist_id):
     app.logger.info("Request for wishlist with id: %s", wishlist_id)
     wishlist = Wishlists.find(wishlist_id)
     if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
 
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
@@ -91,10 +96,16 @@ def create_item(wishlist_id):
     item.deserialize(data)
     item.create()
     message = item.serialize()
-    location_url = url_for("get_items", wishlist_id = wishlist_id, item_id=item.id, _external=True)
+    location_url = url_for(
+        "get_items", wishlist_id=wishlist_id, item_id=item.id, _external=True
+    )
 
     app.logger.info("Wishlist Item with ID [%s] created.", item.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
+
+
+
 
 ######################################################################
 # RETRIEVE A WISHLIST ITEM
@@ -108,10 +119,14 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Request for items with id: %s", str(item_id))
     item = Items.find(item_id)
     if not item:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with id '{item_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist Item with id '{item_id}' was not found.",
+        )
 
     app.logger.info("Returning wishlist item: %s", item.name)
     return jsonify(item.serialize()), status.HTTP_200_OK
+
 
 ######################################################################
 # DELETE A WISHLIST
@@ -129,6 +144,8 @@ def delete_wishlists(wishlist_id):
 
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
@@ -147,9 +164,41 @@ def delete_items(wishlist_id, item_id):
 
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
+
+######################################################################
+# UPDATE A PRODUCT IN A WISHLIST ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_product(wishlist_id, item_id):
+    """Updates the name of a product in a wishlist."""
+    app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
+    wishlist = Wishlists.find(wishlist_id)
+    
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f'Wishlist {wishlist_id} not found')
+    
+    wishlist_product = Items.find(item_id)
+
+    if not wishlist_product:
+        abort(status.HTTP_404_NOT_FOUND, f'Item {item_id} not found in {wishlist_id}')
+    
+    body = request.get_json()
+    app.logger.info('Request body=%s',body)
+
+    new_name = body.get('product_name',None)
+    if not new_name:
+        abort(status.HTTP_400_BAD_REQUEST, 'No product name passed to rename.')
+    
+    wishlist_product.name = new_name
+    wishlist_product.update()
+
+    return {}, status.HTTP_202_ACCEPTED
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
 
 def check_content_type(content_type):
     """Checks that the media type is correct"""
@@ -170,9 +219,8 @@ def check_content_type(content_type):
     )
 
 
-
 def init_db():
-    """ Initializes the SQLAlchemy app """
+    """Initializes the SQLAlchemy app"""
     global app
     Wishlists.init_db(app)
     Items.init_db(app)

@@ -172,6 +172,8 @@ class TestItemsService(TestCase):
         db.session.commit()
 
     def tearDown(self):
+        db.session.query(Items).delete()  # clean up the last tests
+        db.session.query(Wishlists).delete()  # clean up the last wishlists
         db.session.remove()
 
     def _create_items(self, count):
@@ -244,7 +246,7 @@ class TestItemsService(TestCase):
 
     def test_delete_item(self):
         """It should Delete a Item"""
-        test_item = self._create_items(1)[0]
+        test_item = self._create_items(6)[0]
         URL = BASE_URL + "/" + str(test_item['wishlist_id']) + "/items"
         response = self.client.delete(f"{URL}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -252,7 +254,16 @@ class TestItemsService(TestCase):
         # make sure they are deleted
         response = self.client.get(f"{URL}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        
+    def test_update_product(self):
+        """It should Update a product Name"""
+        wishlist = Wishlists(name='Wishlist',customer_id=1)
+        wishlist.create()
+        item = Items(name='Test', wishlist_id=wishlist.id,product_id=1)
+        item.create()
 
+        response = self.client.put(f'{BASE_URL}/{wishlist.id}/items/{item.id}',json={'product_name':'Test Rename'})
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
 
 
