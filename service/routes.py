@@ -95,6 +95,21 @@ def create_item(wishlist_id):
 
     app.logger.info("Wishlist Item with ID [%s] created.", item.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+######################################################################
+# RETRIEVE A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+def get_wishlist(wishlist_id):
+    """
+    Retrieve a single wishlist
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for wishlist with id: %s", str(wishlist_id))
+    wish_list = Wishlists.find(wishlist_id)
+    if not wish_list:
+         abort(status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found.")
+    app.logger.info("Returning wishlist : %s", str(wishlist_id))
+    return jsonify(wish_list.serialize()), status.HTTP_200_OK
 
 ######################################################################
 # RETRIEVE A WISHLIST ITEM
@@ -102,7 +117,7 @@ def create_item(wishlist_id):
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
 def get_items(wishlist_id, item_id):
     """
-    Retrieve a single wishlist
+    Retrieve a single wishlist item
     This endpoint will return a wishlist based on it's id
     """
     app.logger.info("Request for items with id: %s", str(item_id))
