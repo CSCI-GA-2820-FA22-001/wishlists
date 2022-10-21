@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Pet API Service Test Suite
+Wishlists API Service Test Suite
 
 Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
@@ -21,7 +21,7 @@ Test cases can be run with the following:
   codecov --token=$CODECOV_TOKEN
 
   While debugging just these tests it's convenient to use this:
-    nosetests --stop tests/test_service.py:TestPetService
+    nosetests --stop tests/test_service.py:TestWishlistsService
 """
 
 import os
@@ -76,9 +76,9 @@ class TestWishlistsService(TestCase):
     def tearDown(self):
         db.session.remove()
 
-    def _create_pets(self, count):
+    def _create_wishlists(self, count):
         """Factory method to create wishlists in bulk"""
-        pets = []
+        wishlists = []
         for _ in range(count):
             test_wishlists = WishlistsFactory()
             response = self.client.post(BASE_URL, json=test_wishlists.serialize())
@@ -87,8 +87,8 @@ class TestWishlistsService(TestCase):
             )
             new_wishlist = response.get_json()
             test_wishlists.id = new_wishlist["id"]
-            pets.append(new_wishlist)
-        return pets
+            wishlists.append(new_wishlist)
+        return wishlists
 
     ######################################################################
     #  T E S T   C A S E S

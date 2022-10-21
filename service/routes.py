@@ -47,7 +47,7 @@ def create_wishlists():
     Creates a Wishlist
     This endpoint will create a Wishlist based the data in the body that is posted
     """
-    app.logger.info("Request to create a pet")
+    app.logger.info("Request to create a wishlist")
     check_content_type("application/json")
     wishlist = Wishlists()
     wishlist.deserialize(request.get_json())
