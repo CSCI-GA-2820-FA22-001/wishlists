@@ -3,11 +3,9 @@ My Service
 Describe what your service does here
 """
 
-from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask import jsonify, request, url_for, abort
+from service.models import Wishlists, Items
 from .common import status  # HTTP Status Codes
-from service.models import Wishlists,Items
-from flask import request, jsonify
-import json
 
 # Import Flask application
 from . import app
@@ -21,12 +19,16 @@ def healthcheck():
     """Let them know our heart is still beating"""
     return jsonify(status=200, message="Healthy"), status.HTTP_200_OK
 
+
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route("/")
 def index():
-    """Root URL response"""
+    """
+    Root URL response
+    Sends name of API service
+    """
     app.logger.info("Request for Root URL")
     return (
         jsonify(
@@ -56,7 +58,6 @@ def create_wishlists():
     location_url = url_for("get_wishlists", wishlist_id=wishlist.id, _external=True)
     app.logger.info("Wishlist with ID [%s] created.", wishlist.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-
 
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
@@ -91,10 +92,11 @@ def create_item(wishlist_id):
     item.deserialize(data)
     item.create()
     message = item.serialize()
-    location_url = url_for("get_items", wishlist_id = wishlist_id, item_id=item.id, _external=True)
+    location_url = url_for("get_items", wishlist_id=wishlist_id, item_id=item.id, _external=True)
 
     app.logger.info("Wishlist Item with ID [%s] created.", item.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
 
 ######################################################################
 # RETRIEVE A WISHLIST ITEM
@@ -113,6 +115,7 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Returning wishlist item: %s", item.name)
     return jsonify(item.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
@@ -129,10 +132,11 @@ def delete_wishlists(wishlist_id):
 
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
-
 # /wishlists/{id}/items/{id}
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
 def delete_items(wishlist_id, item_id):
@@ -141,15 +145,18 @@ def delete_items(wishlist_id, item_id):
     This endpoint will delete a item based the id specified in the path
     """
     app.logger.info("Request to delete item with id: %s", item_id)
+    app.logger.info("Above Item Id is present in wishlist with id: %s", wishlist_id)
     item = Items.find(item_id)
     if item:
         item.delete()
 
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return "", status.HTTP_204_NO_CONTENT
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
 
 def check_content_type(content_type):
     """Checks that the media type is correct"""
@@ -168,7 +175,6 @@ def check_content_type(content_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {content_type}",
     )
-
 
 
 def init_db():
