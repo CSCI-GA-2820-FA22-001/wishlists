@@ -1,38 +1,92 @@
-# NYU DevOps Project Template
+# NYU DevOps Project - Wishlists
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects
 
 ## Overview
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+Following is the project setup for the Wishlists functionality of a demo e-commerce website. It allows for creation of multiple wishlists for each customer and multiple items with fields like `rank, quantity, price` for various functionality. The service supports all CRUD: create, read, update, delete, list and find by query operations on the main schemas of `Wishlist` and `Items` which correspond to the Items list in a wishlist.
 
-## Automatic Setup
+## Available REST API's
 
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
+Route | Operation | Description
+-- | -- | --
+/healthcheck | | Service Healthcheck
+/ | root index | Root URL returns service name
+POST /wishlists | CREATE | Create new Wishlist
+GET /wishlists/`<wishlist_id>` | READ | Show a single wishlist
+POST /wishlists/`<wishlist_id>`/items | CREATE | Add item in body to wishlist
+GET /wishlists/`<wishlist_id>`/items/`<item_id>` | READ | Show a given item in wishlist
+DELETE /wishlists/`<wishlist_id>` | DELETE | Delete given Wishlist
+DELETE /wishlists/`<wishlist_id>`/items/`<item_id>` | DELETE | Delete item from Wishlist
+PUT /wishlists/`<id>` | UPDATE | Rename wishlist
+GET /wishlists/`<id>`/items | READ | List items in wishlist [ordered by rank field]
+GET /wishlists | LIST | Show all wishlists
+GET /wishlists?q=querytext | QUERY | Search for a wishlist
+GET /wishlists/`<id>`?q=querytext | QUERY | Search for items in wishlist
 
-## Manual Setup
 
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
+## Running the service
 
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
-
-These should be copied using a bash shell as follows:
-
-```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
+Given that you have cloned the repository. Using the below command in the repo folder:
+``` text
+$ code .
 ```
+opens the repo in VSCode, where you need to select the option to `Reopen in Containers` which brings up the `wishlist:app` and `postgres` images.
+
+The project uses honcho which gets it's commands from the `Procfile`. To start the service simply use:
+``` text
+$ honcho start
+```
+You should be able to reach the service at: http://localhost:8000. The port that is used is controlled by an environment variable defined in the .flaskenv file which Flask uses to load it's configuration from the environment by default. Going to the above URL localhost:8000, you will see a message about the service which looks something like this:
+``` text
+{
+  "name": "Wishlists Demo REST API Service", 
+  "paths": "http://localhost:8000/wishlists", 
+  "version": "1.0"
+}
+```
+which is the response from the root index.
+Other API routes can be hit as detailed from the `Available REST API's tab` which can be hit using `POSTMAN` or `curl` commands from terminal the POST API required a body of Wishlist or Items for creating them which looks like: 
+
+## Wishlist model
+``` text
+{   "id": Int,
+    "name": String,
+    "customer_id": Int,
+    "created_on": DateTime} 
+```
+
+## Items model
+``` text
+{   "id": Int,
+    "name": String,
+    "wishlist_id": Int,
+    "product_id": Int,
+    "created_on": DateTime,
+    "rank": Int,
+    "price": Int,
+    "quantity": Int,
+    "updated_on": DateTime} 
+```
+
+
+## Testing
+
+The testing files are all present in app/tests folder. You can run the tests using: 
+
+```text
+nosetests
+```
+You will see all the tests passsing with the code coverage at the end. `setup.cfg` file controls test results level of detail like verbosity.
 
 ## Contents
 
 The project contains the following:
 
 ```text
-.gitignore          - this will ignore vagrant and other metadata files
+.gitignore          - this will ignore .devcontainer and other metadata files
 .flaskenv           - Environment variables to configure Flask
 .gitattributes      - File to gix Windows CRLF issues
 .devcontainers/     - Folder with support for VSCode Remote Containers
@@ -51,7 +105,8 @@ service/                   - service python package
 
 tests/              - test cases package
 ├── __init__.py     - package initializer
-├── test_models.py  - test suite for business models
+├── test_wishlists_models.py  - test suite for Wishlist model
+├── test_item_models.py  - test suite for Items model
 └── test_routes.py  - test suite for service routes
 ```
 
