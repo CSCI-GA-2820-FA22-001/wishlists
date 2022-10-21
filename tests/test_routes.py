@@ -61,6 +61,7 @@ class TestWishlistsService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         Wishlists.init_db(app)
+        Items.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
@@ -70,6 +71,7 @@ class TestWishlistsService(TestCase):
     def setUp(self):
         """Runs before each test"""
         self.client = app.test_client()
+        db.session.query(Items).delete()  # clean up the last tests
         db.session.query(Wishlists).delete()  # clean up the last tests
         db.session.commit()
 
