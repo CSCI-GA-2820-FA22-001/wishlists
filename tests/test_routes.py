@@ -61,6 +61,7 @@ class TestWishlistsService(TestCase):
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
         Wishlists.init_db(app)
+        Items.init_db(app)
 
     @classmethod
     def tearDownClass(cls):
@@ -70,6 +71,7 @@ class TestWishlistsService(TestCase):
     def setUp(self):
         """Runs before each test"""
         self.client = app.test_client()
+        db.session.query(Items).delete()  # clean up the last tests
         db.session.query(Wishlists).delete()  # clean up the last tests
         db.session.commit()
 
@@ -153,12 +155,12 @@ class TestWishlistsService(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         renamed_wishlist = response.get_json()
-        self.assertEqual(renamed_wishlist['name'],'Test Rename')
-        
+        self.assertEqual(renamed_wishlist["name"], "Test Rename")
+
         response = self.client.get(f"{BASE_URL}/{test_wishlist['id']}")
-        self.assertEqual(response.status_code,status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         wishlist = response.get_json()
-        self.assertEqual(wishlist["name"], 'Test Rename')
+        self.assertEqual(wishlist["name"], "Test Rename")
 
 
 ######################################################################
@@ -190,6 +192,8 @@ class TestItemsService(TestCase):
         db.session.commit()
 
     def tearDown(self):
+        db.session.query(Items).delete()  # clean up the last tests
+        db.session.query(Wishlists).delete()  # clean up the last wishlists
         db.session.remove()
 
     def _create_items(self, count):
@@ -201,8 +205,8 @@ class TestItemsService(TestCase):
             test_wishlist.create()
             test_item = ItemsFactory()
             test_item.wishlist_id = test_wishlist.id
-            URL = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
-            response = self.client.post(URL, json=test_item.serialize())
+            url = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
+            response = self.client.post(url, json=test_item.serialize())
             self.assertEqual(
                 response.status_code,
                 status.HTTP_201_CREATED,
@@ -241,8 +245,8 @@ class TestItemsService(TestCase):
         test_wishlist.create()
         test_item = ItemsFactory()
         test_item.wishlist_id = test_wishlist.id
-        URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-        response = self.client.post(URL, json=test_item.serialize())
+        url = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+        response = self.client.post(url, json=test_item.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
@@ -264,13 +268,26 @@ class TestItemsService(TestCase):
     def test_delete_item(self):
         """It should Delete a Item"""
         test_item = self._create_items(1)[0]
-        URL = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
-        response = self.client.delete(f"{URL}/{test_item['id']}")
+        url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
+        response = self.client.delete(f"{url}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
         # make sure they are deleted
-        response = self.client.get(f"{URL}/{test_item['id']}")
+        response = self.client.get(f"{url}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_product(self):
+        """It should Update a product Name"""
+        wishlist = Wishlists(name="Wishlist", customer_id=1)
+        wishlist.create()
+        item = Items(name="Test", wishlist_id=wishlist.id, product_id=1)
+        item.create()
+
+        response = self.client.put(
+            f"{BASE_URL}/{wishlist.id}/items/{item.id}",
+            json={"product_name": "Test Rename"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
     def test_get_wishlist(self):
         """It should retrieve a wishlist"""
@@ -278,35 +295,27 @@ class TestItemsService(TestCase):
         test_wishlist.id = None
         test_wishlist.create()
         test_wishlist_id = test_wishlist.id
-        URL = BASE_URL + "/" + str(test_wishlist_id)
-        response = self.client.get(URL, json=test_wishlist_id.serialize())
+        url = BASE_URL + "/" + str(test_wishlist_id)
+        response = self.client.get(url, json=test_wishlist.serialize())
 
         ##Checking Status##
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         ##Checking the name and id of the Wishlist##
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
-     
+
     def test_get_wishlist_item(self):
-        """It should retrieve a wishlist"""
-        test_wishlist = WishlistsFactory()
-        test_wishlist.id = None
-        test_wishlist.create()
-        test_item = ItemsFactory()
-        test_item.wishlist_id = test_wishlist.id
-        URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-        response = self.client.get(URL, json=test_item.serialize())
+        """It should retrieve items in a wishlist."""
         
+        test_item = self._create_items(1)[0]
+        url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
+        response = self.client.get(f'{url}/{test_item["id"]}', json=test_item)
+
         ##Checking Status##
-        self.assertEqual(response.status_code, status.HTTP_200_CREATED)
-        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
         ##Checking the attributed of the Wishlist Item##
         n_item = response.get_json()
-        self.assertEqual(n_item["id"], test_item.id)
-        self.assertEqual(n_item["name"], test_item.name)
-        self.assertEqual(n_item["product_id"], test_item.product_id)
-        self.assertEqual(n_item["price"], test_item.price)
-        
-
+        self.assertDictEqual(n_item,test_item)

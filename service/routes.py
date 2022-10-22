@@ -3,6 +3,7 @@ My Service
 Describe what your service does here
 """
 
+
 from email.mime import application
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from .common import status  # HTTP Status Codes
@@ -77,6 +78,7 @@ def get_wishlists(wishlist_id):
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
+
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def rename_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
@@ -103,7 +105,6 @@ def rename_wishlist(wishlist_id):
             status.HTTP_400_BAD_REQUEST,
             f"No name was specified to rename {wishlist_id}",
         )
-
 
     wishlist.name = new_name
     wishlist.update()
@@ -192,6 +193,36 @@ def delete_items(wishlist_id, item_id):
 
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
+######################################################################
+# UPDATE A PRODUCT IN A WISHLIST ITEM
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+def update_product(wishlist_id, item_id):
+    """Updates the name of a product in a wishlist."""
+    app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
+    wishlist = Wishlists.find(wishlist_id)
+
+    if not wishlist:
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist {wishlist_id} not found")
+
+    wishlist_product = Items.find(item_id)
+
+    if not wishlist_product:
+        abort(status.HTTP_404_NOT_FOUND, f"Item {item_id} not found in {wishlist_id}")
+
+    body = request.get_json()
+    app.logger.info("Request body=%s", body)
+
+    new_name = body.get("product_name", None)
+    if not new_name:
+        abort(status.HTTP_400_BAD_REQUEST, "No product name passed to rename.")
+
+    wishlist_product.name = new_name
+    wishlist_product.update()
+
+    return {}, status.HTTP_202_ACCEPTED
 
 
 ######################################################################
