@@ -258,7 +258,9 @@ class TestItemsService(TestCase):
         test_wishlist = WishlistsFactory()
         test_wishlist.id = None
         test_wishlist.create()
+        
         test_wishlist_id = test_wishlist.id
+        
         URL = BASE_URL + "/" + str(test_wishlist_id)
         response = self.client.get(URL, json=test_wishlist_id.serialize())
         
@@ -266,29 +268,36 @@ class TestItemsService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         ##Checking the name and id of the Wishlist##
-        new_wishlist = response.get_json()
-        self.assertEqual(new_wishlist["id"], test_wishlist.id)
-        self.assertEqual(new_wishlist["name"], test_wishlist.name)
+        n_wishlist = response.get_json()
+        self.assertEqual(n_wishlist["id"], test_wishlist.id)
+        self.assertEqual(n_wishlist["name"], test_wishlist.name)
      
     def test_get_wishlist_item(self):
        """It should retrieve a wishlist"""
         test_wishlist = WishlistsFactory()
+        
         test_wishlist.id = None
+        
         test_wishlist.create()
         test_item = ItemsFactory()
+        
         test_item.wishlist_id = test_wishlist.id
         URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+        
         response = self.client.get(URL, json=test_item.serialize())
         
         ##Checking Status##
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         ##Checking the attributed of the Wishlist Item##
-        n_item = response.get_json()
-        self.assertEqual(n_item["id"], test_item.id)
-        self.assertEqual(n_item["name"], test_item.name)
-        self.assertEqual(n_item["product_id"], test_item.product_id)
-        self.assertEqual(n_item["price"], test_item.price)
+        
+        new_item = response.get_json()
+        
+        self.assertEqual(new_item["id"], test_item.id)
+        self.assertEqual(new_item["name"], test_item.name)
+        
+        self.assertEqual(new_item["product_id"], test_item.product_id)
+        self.assertEqual(new_item["price"], test_item.price)
         
         
       
