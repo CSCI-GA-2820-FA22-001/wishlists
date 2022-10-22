@@ -102,8 +102,8 @@ def create_item(wishlist_id):
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
 def get_items(wishlist_id, item_id):
     """
-    Retrieve a single wishlist item
-    This endpoint will return a wishlist based on it's id
+    Retrieve a single wishlist
+    This endpoint will return a wishlist items based on it's id
     """
     app.logger.info("Request for items with id: %s", str(item_id))
     item = Items.find(item_id)
@@ -130,7 +130,7 @@ def delete_wishlists(wishlist_id):
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
 ######################################################################
-# DELETE A WISHLIST
+# DELETE AN ITEM IN WISHLIST
 ######################################################################
 
 # /wishlists/{id}/items/{id}
