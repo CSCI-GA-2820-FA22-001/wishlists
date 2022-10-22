@@ -4,12 +4,10 @@ Describe what your service does here
 """
 
 
-from email.mime import application
-from flask import Flask, jsonify, request, url_for, make_response, abort
-from .common import status  # HTTP Status Codes
+# from email.mime import application
+from flask import jsonify, request, url_for, abort
 from service.models import Wishlists, Items
-from flask import request, jsonify
-import json
+from .common import status  # HTTP Status Codes
 
 # Import Flask application
 from . import app

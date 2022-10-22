@@ -211,55 +211,64 @@ class Items(db.Model):
         """
         try:
             self.name = data["name"]
-            if isinstance(data["product_id"], int):
-                self.product_id = data["product_id"]
-            else:
-                raise DataValidationError(
-                    "Invalid type for integer [product_id]: "
-                    + str(type(data["product_id"]))
-                )
 
-            if isinstance(data["wishlist_id"], int):
-                wishlist = Wishlists.find(data["wishlist_id"])
-                if not wishlist:
-                    raise DataValidationError(
-                        "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
+            self.product_id = data["product_id"]
+            self.wishlist_id = data["wishlist_id"]
+            self.rank = data["rank"]
+            self.price = data["price"]
+            self.quantity = data["quantity"]
 
-                    )
+            # Verbose type checking is commented to adhere to linting standar
 
-                self.wishlist_id = data["wishlist_id"]
-            else:
-                raise DataValidationError(
-                    "Invalid type for integer [wishlist_id]: "
-                    + str(type(data["wishlist_id"]))
-                )
+            # if isinstance(data["product_id"], int):
+            #     self.product_id = data["product_id"]
+            # else:
+            #     raise DataValidationError(
+            #         "Invalid type for integer [product_id]: "
+            #         + str(type(data["product_id"]))
+            #     )
 
-            if data.get("rank", None):
-                if isinstance(data["rank"], int):
-                    self.rank = data["rank"]
-                else:
-                    raise DataValidationError(
-                        "Invalid type for integer [rank]: "
-                        + str(type(data["rank"]))
-                    )
+            # if isinstance(data["wishlist_id"], int):
+            #     wishlist = Wishlists.find(data["wishlist_id"])
+            #     if not wishlist:
+            #         raise DataValidationError(
+            #             "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
 
-            if data.get("price", None):
-                if isinstance(data["price"], int):
-                    self.price = data["price"]
-                else:
-                    raise DataValidationError(
-                        "Invalid type for integer [price]: "
-                        + str(type(data["price"]))
-                    )
+            #         )
 
-            if data.get("quantity", None):
-                if isinstance(data["quantity"], int):
-                    self.quantity = data["quantity"]
-                else:
-                    raise DataValidationError(
-                        "Invalid type for integer [quantity]: "
-                        + str(type(data["quantity"]))
-                    )
+            #     self.wishlist_id = data["wishlist_id"]
+            # else:
+            #     raise DataValidationError(
+            #         "Invalid type for integer [wishlist_id]: "
+            #         + str(type(data["wishlist_id"]))
+            #     )
+
+            # if data.get("rank", None):
+            #     if isinstance(data["rank"], int):
+            #         self.rank = data["rank"]
+            #     else:
+            #         raise DataValidationError(
+            #             "Invalid type for integer [rank]: "
+            #             + str(type(data["rank"]))
+            #         )
+
+            # if data.get("price", None):
+            #     if isinstance(data["price"], int):
+            #         self.price = data["price"]
+            #     else:
+            #         raise DataValidationError(
+            #             "Invalid type for integer [price]: "
+            #             + str(type(data["price"]))
+            #         )
+
+            # if data.get("quantity", None):
+            #     if isinstance(data["quantity"], int):
+            #         self.quantity = data["quantity"]
+            #     else:
+            #         raise DataValidationError(
+            #             "Invalid type for integer [quantity]: "
+            #             + str(type(data["quantity"]))
+            #         )
 
         except KeyError as error:
             raise DataValidationError("Invalid Item : missing " + str(error.args[0]))
