@@ -77,7 +77,6 @@ def get_wishlists(wishlist_id):
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
-
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def rename_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
@@ -143,7 +142,7 @@ def create_item(wishlist_id):
 def get_items(wishlist_id, item_id):
     """
     Retrieve a single wishlist
-    This endpoint will return a wishlist items based on it's id
+    This endpoint will return a wishlist based on it's id
     """
     app.logger.info("Request for items with id: %s", str(item_id))
     item = Items.find(item_id)
@@ -176,7 +175,7 @@ def delete_wishlists(wishlist_id):
 
 
 ######################################################################
-# DELETE AN ITEM IN WISHLIST
+# DELETE A WISHLIST
 ######################################################################
 
 # /wishlists/{id}/items/{id}

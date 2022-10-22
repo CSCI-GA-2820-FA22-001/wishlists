@@ -273,24 +273,24 @@ class TestItemsService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_wishlist(self):
-       """It should retrieve a wishlist"""
+        """It should retrieve a wishlist"""
         test_wishlist = WishlistsFactory()
         test_wishlist.id = None
         test_wishlist.create()
         test_wishlist_id = test_wishlist.id
         URL = BASE_URL + "/" + str(test_wishlist_id)
         response = self.client.get(URL, json=test_wishlist_id.serialize())
-        
+
         ##Checking Status##
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+
         ##Checking the name and id of the Wishlist##
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
      
     def test_get_wishlist_item(self):
-       """It should retrieve a wishlist"""
+        """It should retrieve a wishlist"""
         test_wishlist = WishlistsFactory()
         test_wishlist.id = None
         test_wishlist.create()
@@ -300,7 +300,7 @@ class TestItemsService(TestCase):
         response = self.client.get(URL, json=test_item.serialize())
         
         ##Checking Status##
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_CREATED)
         
         ##Checking the attributed of the Wishlist Item##
         n_item = response.get_json()
