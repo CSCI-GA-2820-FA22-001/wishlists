@@ -3,8 +3,8 @@ My Service
 Describe what your service does here
 """
 
-from email.policy import HTTP
-from itertools import product
+
+from email.mime import application
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from .common import status  # HTTP Status Codes
 from service.models import Wishlists, Items
@@ -78,6 +78,38 @@ def get_wishlists(wishlist_id):
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
+@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
+def rename_wishlist(wishlist_id):
+    """Renames a wishlist to a name specified by the "name" field in the body
+    of the request.
+
+    Args:
+        wishlist_id: The id of the wishlist to rename.
+    """
+    app.logger.info("Request to rename wishlist %d", wishlist_id)
+    wishlist = Wishlists.find(wishlist_id)
+
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
+
+    body = request.get_json()
+    app.logger.info("Got body=%s", body)
+
+    new_name = body.get("name", None)
+    if new_name is None:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"No name was specified to rename {wishlist_id}",
+        )
+
+
+    wishlist.name = new_name
+    wishlist.update()
+    return wishlist.serialize(), status.HTTP_200_OK
+
 
 ######################################################################
 # CREATE A NEW ITEM TO WISHLIST
@@ -102,9 +134,6 @@ def create_item(wishlist_id):
 
     app.logger.info("Wishlist Item with ID [%s] created.", item.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-
-
-
 
 
 ######################################################################
@@ -166,7 +195,6 @@ def delete_items(wishlist_id, item_id):
     return "", status.HTTP_204_NO_CONTENT
 
 
-
 ######################################################################
 # UPDATE A PRODUCT IN A WISHLIST ITEM
 ######################################################################
@@ -195,6 +223,7 @@ def update_product(wishlist_id, item_id):
     wishlist_product.update()
 
     return {}, status.HTTP_202_ACCEPTED
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
