@@ -78,7 +78,7 @@ def get_wishlists(wishlist_id):
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
 
-@app.route("/wishlists/<int:wishlist_id>/rename", methods=["PUT"])
+@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def rename_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
     of the request.

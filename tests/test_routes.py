@@ -148,7 +148,7 @@ class TestWishlistsService(TestCase):
         """It should rename the wishlist."""
         test_wishlist = self._create_wishlists(1)[0]
         response = self.client.put(
-            f"{BASE_URL}/{test_wishlist['id']}/rename", json={"name": "Test Rename"}
+            f"{BASE_URL}/{test_wishlist['id']}", json={"name": "Test Rename"}
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
