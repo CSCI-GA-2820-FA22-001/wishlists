@@ -202,6 +202,61 @@ class Items(db.Model):
                 "quantity": self.quantity,
                 "updated_on": self.updated_on}
 
+    def deserialize_check_pid(self, data):
+        """ Deserialize helper """
+        if isinstance(data["product_id"], int):
+            self.product_id = data["product_id"]
+        else:
+            raise DataValidationError(
+                "Invalid type for integer [product_id]: "
+                + str(type(data["product_id"]))
+            )
+
+    def deserialize_check_wid(self, data):
+        """ Deserialize helper """
+        if isinstance(data["wishlist_id"], int):
+            wishlist = Wishlists.find(data["wishlist_id"])
+            if not wishlist:
+                raise DataValidationError(
+                    "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
+                )
+
+            self.wishlist_id = data["wishlist_id"]
+        else:
+            raise DataValidationError(
+                "Invalid type for integer [wishlist_id]: "
+                + str(type(data["wishlist_id"]))
+            )
+
+    def deserialize_check_meta(self, data):
+        """ Deserialize helper """
+        if data.get("rank", None):
+            if isinstance(data["rank"], int):
+                self.rank = data["rank"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for integer [rank]: "
+                    + str(type(data["rank"]))
+                )
+
+        if data.get("price", None):
+            if isinstance(data["price"], int):
+                self.price = data["price"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for integer [price]: "
+                    + str(type(data["price"]))
+                                    )
+
+        if data.get("quantity", None):
+            if isinstance(data["quantity"], int):
+                self.quantity = data["quantity"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for integer [quantity]: "
+                    + str(type(data["quantity"]))
+                )
+
     def deserialize(self, data):
         """
         Deserializes a WishlistsModel from a dictionary
@@ -212,63 +267,19 @@ class Items(db.Model):
         try:
             self.name = data["name"]
 
-            self.product_id = data["product_id"]
-            self.wishlist_id = data["wishlist_id"]
-            self.rank = data["rank"]
-            self.price = data["price"]
-            self.quantity = data["quantity"]
+            # self.product_id = data["product_id"]
+            # self.wishlist_id = data["wishlist_id"]
+            # self.rank = data["rank"]
+            # self.price = data["price"]
+            # self.quantity = data["quantity"]
 
-            # Verbose type checking is commented to adhere to linting standar
+            # Verbose type checking is commented to adhere to linting standard
 
-            # if isinstance(data["product_id"], int):
-            #     self.product_id = data["product_id"]
-            # else:
-            #     raise DataValidationError(
-            #         "Invalid type for integer [product_id]: "
-            #         + str(type(data["product_id"]))
-            #     )
+            self.deserialize_check_pid(data)
 
-            # if isinstance(data["wishlist_id"], int):
-            #     wishlist = Wishlists.find(data["wishlist_id"])
-            #     if not wishlist:
-            #         raise DataValidationError(
-            #             "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
+            self.deserialize_check_wid(data)
 
-            #         )
-
-            #     self.wishlist_id = data["wishlist_id"]
-            # else:
-            #     raise DataValidationError(
-            #         "Invalid type for integer [wishlist_id]: "
-            #         + str(type(data["wishlist_id"]))
-            #     )
-
-            # if data.get("rank", None):
-            #     if isinstance(data["rank"], int):
-            #         self.rank = data["rank"]
-            #     else:
-            #         raise DataValidationError(
-            #             "Invalid type for integer [rank]: "
-            #             + str(type(data["rank"]))
-            #         )
-
-            # if data.get("price", None):
-            #     if isinstance(data["price"], int):
-            #         self.price = data["price"]
-            #     else:
-            #         raise DataValidationError(
-            #             "Invalid type for integer [price]: "
-            #             + str(type(data["price"]))
-            #         )
-
-            # if data.get("quantity", None):
-            #     if isinstance(data["quantity"], int):
-            #         self.quantity = data["quantity"]
-            #     else:
-            #         raise DataValidationError(
-            #             "Invalid type for integer [quantity]: "
-            #             + str(type(data["quantity"]))
-            #         )
+            self.deserialize_check_meta(data)
 
         except KeyError as error:
             raise DataValidationError("Invalid Item : missing " + str(error.args[0]))

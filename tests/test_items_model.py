@@ -259,7 +259,7 @@ class TestItemsModel(unittest.TestCase):
         """It should not deserialize a bad customer_id attribute"""
         test_item = ItemsFactory()
         data = test_item.serialize()
-        data["wishlist_id"] = "1"
+        data["wishlist_id"] = "$"
         item = Items()
         self.assertRaises(DataValidationError, item.deserialize, data)
 
@@ -283,6 +283,7 @@ class TestItemsModel(unittest.TestCase):
         data = test_item.serialize()
         data["price"] = "1"
         item = Items()
+        app.logger.info(item.deserialize)
         self.assertRaises(DataValidationError, item.deserialize, data)
 
     def test_deserialize_bad_quantity(self):

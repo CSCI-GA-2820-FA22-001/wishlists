@@ -154,6 +154,7 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Returning wishlist item: %s", item.name)
     return jsonify(item.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # LIST ALL ITEMS IN A WISHLIST
 ######################################################################
@@ -167,12 +168,13 @@ def list_items(wishlist_id):
     items = Items.find_by_wishlist_id(wishlist_id)
     items_serialized = [i.serialize() for i in items]
     app.logger.info(items_serialized)
-    if len(items_serialized)==0:
-        return {"message":"No items found for this wishlist - "+ str(wishlist_id)}, status.HTTP_200_OK
+    if len(items_serialized) == 0:
+        return {"message": "No items found for this wishlist - " + str(wishlist_id)}, status.HTTP_200_OK
 
     app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
-    
+
+
 ######################################################################
 # LIST ALL WISHLISTS FOR A CUSTOMER
 ######################################################################
@@ -184,17 +186,14 @@ def list_wishlists(customer_id):
     """
     app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
     wishlists = Wishlists.find_by_customer_id(customer_id)
-   
+
     wishlists_serialized = [w.serialize() for w in wishlists]
     app.logger.info(wishlists_serialized)
-    if len(wishlists_serialized)==0:
-        return {"message":"No wishlists found for this customer - "+ str(customer_id)}, status.HTTP_200_OK
-
-    #app.logger.info("Returning wishlist:", wishlists)
-   
-   
+    if len(wishlists_serialized) == 0:
+        return {"message": "No wishlists found for this customer - " + str(customer_id)}, status.HTTP_200_OK
+    # app.logger.info("Returning wishlist:", wishlists)
     return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
-   # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
+    # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
 
 
 ######################################################################
