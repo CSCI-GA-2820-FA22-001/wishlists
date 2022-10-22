@@ -320,7 +320,7 @@ class TestItemsService(TestCase):
         n_item = response.get_json()
         self.assertDictEqual(n_item,test_item)
     
-    def list_wishlist_items(self):
+    def test_list_wishlist_items(self):
         """It should list wishlist items"""
         test_wishlist = self._create_wishlists(1)
         id,name,pid,price=[]
