@@ -164,11 +164,10 @@ class TestWishlistsService(TestCase):
         "It should display the wishlists for a particular customer"
         customer_id = 5678
         test_wishlists = self._create_wishlists_by_customer(5,customer_id)
-        #test_wishlists = self._create_wishlists(1)
-        #customer_id = test_wishlist.customer_id
+        
         ids = [w["id"] for w in test_wishlists]
         response = self.client.get(f"{BASE_URL}/customer/{customer_id}")
-        print(response.data)
+        
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
