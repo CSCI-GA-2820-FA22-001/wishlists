@@ -24,6 +24,7 @@ Test cases can be run with the following:
     nosetests --stop tests/test_service.py:TestWishlistsService
 """
 
+from asyncio.log import logger
 import os
 import logging
 from unittest import TestCase
@@ -34,6 +35,7 @@ from service import app
 from service.common import status
 from service.models import db, Wishlists, Items
 from tests.factories import WishlistsFactory, ItemsFactory
+
 
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
@@ -82,6 +84,22 @@ class TestWishlistsService(TestCase):
         for _ in range(count):
             test_wishlists = WishlistsFactory()
             response = self.client.post(BASE_URL, json=test_wishlists.serialize())
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, "Could not create test wishlist"
+            )
+            new_wishlist = response.get_json()
+            test_wishlists.id = new_wishlist["id"]
+            wishlists.append(new_wishlist)
+        return wishlists
+
+    def _create_wishlists_by_customer(self, count,customer_id):
+        """Factory method to create wishlists in bulk"""
+        wishlists = []
+        for _ in range(count):
+            test_wishlists = WishlistsFactory()
+            json_req=test_wishlists.serialize()
+            json_req['customer_id']=customer_id
+            response = self.client.post(BASE_URL, json=json_req)
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, "Could not create test wishlist"
             )
@@ -141,7 +159,28 @@ class TestWishlistsService(TestCase):
         # make sure they are deleted
         response = self.client.get(f"{BASE_URL}/{test_wishlist['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_list_wishlist(self):
+        "It should display the wishlists for a particular customer"
+        customer_id = 5678
+        test_wishlists = self._create_wishlists_by_customer(5,customer_id)
+        #test_wishlists = self._create_wishlists(1)
+        #customer_id = test_wishlist.customer_id
+        ids = [w["id"] for w in test_wishlists]
+        response = self.client.get(f"{BASE_URL}/customer/{customer_id}")
+        print(response.data)
+        resp_wishlists = response.get_json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
+        for r in resp_wishlists['wishlists']:
+            self.assertEqual(r['customer_id'], customer_id)
+            self.assertIn(r['id'], ids)
+        cid = 789
+        response = self.client.get(f"{BASE_URL}/customer/{cid}")
+        self.assertEqual(response.get_json()["message"],"No wishlists found for this customer - "+str(cid))
+        logger.info(resp_wishlists)
 
+        
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E

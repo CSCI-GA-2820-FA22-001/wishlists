@@ -147,6 +147,31 @@ def delete_items(wishlist_id, item_id):
 
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return "", status.HTTP_204_NO_CONTENT
+    
+
+######################################################################
+# LIST ALL WISHLISTS FOR A CUSTOMER
+######################################################################
+@app.route("/wishlists/customer/<int:customer_id>", methods=["GET"])
+def list_wishlists(customer_id):
+    """
+    Retrieve a single wishlist
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
+    wishlists = Wishlists.find_by_customer_id(customer_id)
+   
+    wishlists_serialized = [w.serialize() for w in wishlists]
+    app.logger.info(wishlists_serialized)
+    if len(wishlists_serialized)==0:
+        return {"message":"No wishlists found for this customer - "+ str(customer_id)}, status.HTTP_200_OK
+
+    #app.logger.info("Returning wishlist:", wishlists)
+   
+   
+    return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
+   # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
