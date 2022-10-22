@@ -78,6 +78,7 @@ def get_wishlists(wishlist_id):
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
 
+
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
 def rename_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
@@ -104,7 +105,6 @@ def rename_wishlist(wishlist_id):
             status.HTTP_400_BAD_REQUEST,
             f"No name was specified to rename {wishlist_id}",
         )
-
 
     wishlist.name = new_name
     wishlist.update()
@@ -203,26 +203,27 @@ def update_product(wishlist_id, item_id):
     """Updates the name of a product in a wishlist."""
     app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
     wishlist = Wishlists.find(wishlist_id)
-    
+
     if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f'Wishlist {wishlist_id} not found')
-    
+        abort(status.HTTP_404_NOT_FOUND, f"Wishlist {wishlist_id} not found")
+
     wishlist_product = Items.find(item_id)
 
     if not wishlist_product:
-        abort(status.HTTP_404_NOT_FOUND, f'Item {item_id} not found in {wishlist_id}')
-    
-    body = request.get_json()
-    app.logger.info('Request body=%s',body)
+        abort(status.HTTP_404_NOT_FOUND, f"Item {item_id} not found in {wishlist_id}")
 
-    new_name = body.get('product_name',None)
+    body = request.get_json()
+    app.logger.info("Request body=%s", body)
+
+    new_name = body.get("product_name", None)
     if not new_name:
-        abort(status.HTTP_400_BAD_REQUEST, 'No product name passed to rename.')
-    
+        abort(status.HTTP_400_BAD_REQUEST, "No product name passed to rename.")
+
     wishlist_product.name = new_name
     wishlist_product.update()
 
     return {}, status.HTTP_202_ACCEPTED
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
