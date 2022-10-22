@@ -205,8 +205,8 @@ class TestItemsService(TestCase):
             test_wishlist.create()
             test_item = ItemsFactory()
             test_item.wishlist_id = test_wishlist.id
-            URL = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
-            response = self.client.post(URL, json=test_item.serialize())
+            url = BASE_URL + "/" + str(test_item.wishlist_id) + "/items"
+            response = self.client.post(url, json=test_item.serialize())
             self.assertEqual(
                 response.status_code,
                 status.HTTP_201_CREATED,
@@ -245,8 +245,8 @@ class TestItemsService(TestCase):
         test_wishlist.create()
         test_item = ItemsFactory()
         test_item.wishlist_id = test_wishlist.id
-        URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-        response = self.client.post(URL, json=test_item.serialize())
+        url = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+        response = self.client.post(url, json=test_item.serialize())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # Make sure location header is set
@@ -268,12 +268,12 @@ class TestItemsService(TestCase):
     def test_delete_item(self):
         """It should Delete a Item"""
         test_item = self._create_items(1)[0]
-        URL = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
-        response = self.client.delete(f"{URL}/{test_item['id']}")
+        url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
+        response = self.client.delete(f"{url}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
         # make sure they are deleted
-        response = self.client.get(f"{URL}/{test_item['id']}")
+        response = self.client.get(f"{url}/{test_item['id']}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_product(self):
@@ -295,8 +295,8 @@ class TestItemsService(TestCase):
         test_wishlist.id = None
         test_wishlist.create()
         test_wishlist_id = test_wishlist.id
-        URL = BASE_URL + "/" + str(test_wishlist_id)
-        response = self.client.get(URL, json=test_wishlist.serialize())
+        url = BASE_URL + "/" + str(test_wishlist_id)
+        response = self.client.get(url, json=test_wishlist.serialize())
 
         ##Checking Status##
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -310,8 +310,8 @@ class TestItemsService(TestCase):
         """It should retrieve items in a wishlist."""
         
         test_item = self._create_items(1)[0]
-        URL = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
-        response = self.client.get(f'{URL}/{test_item["id"]}', json=test_item)
+        url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
+        response = self.client.get(f'{url}/{test_item["id"]}', json=test_item)
 
         ##Checking Status##
         self.assertEqual(response.status_code, status.HTTP_200_OK)
