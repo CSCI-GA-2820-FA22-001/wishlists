@@ -266,9 +266,9 @@ class TestItemsService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         ##Checking the name and id of the Wishlist##
-        wish_list = response.get_json()
-        self.assertEqual(wish_list["id"], test_wishlist.id)
-        self.assertEqual(wish_list["name"], test_wishlist.name)
+        new_wishlist = response.get_json()
+        self.assertEqual(new_wishlist["id"], test_wishlist.id)
+        self.assertEqual(new_wishlist["name"], test_wishlist.name)
      
     def test_get_wishlist_item(self):
        """It should retrieve a wishlist"""
@@ -284,11 +284,11 @@ class TestItemsService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         
         ##Checking the attributed of the Wishlist Item##
-        new_item = response.get_json()
-        self.assertEqual(new_item["id"], test_item.id)
-        self.assertEqual(new_item["name"], test_item.name)
-        self.assertEqual(new_item["product_id"], test_item.product_id)
-        self.assertEqual(new_item["price"], test_item.price)
+        n_item = response.get_json()
+        self.assertEqual(n_item["id"], test_item.id)
+        self.assertEqual(n_item["name"], test_item.name)
+        self.assertEqual(n_item["product_id"], test_item.product_id)
+        self.assertEqual(n_item["price"], test_item.price)
         
         
       
