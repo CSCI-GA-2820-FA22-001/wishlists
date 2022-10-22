@@ -143,7 +143,7 @@ def create_item(wishlist_id):
 def get_items(wishlist_id, item_id):
     """
     Retrieve a single wishlist
-    This endpoint will return a wishlist based on it's id
+    This endpoint will return a wishlist items based on it's id
     """
     app.logger.info("Request for items with id: %s", str(item_id))
     item = Items.find(item_id)
@@ -176,7 +176,7 @@ def delete_wishlists(wishlist_id):
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE AN ITEM IN WISHLIST
 ######################################################################
 
 # /wishlists/{id}/items/{id}
