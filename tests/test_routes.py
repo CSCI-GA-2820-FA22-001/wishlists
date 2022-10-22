@@ -34,6 +34,7 @@ from service import app
 from service.common import status
 from service.models import db, Wishlists, Items
 from tests.factories import WishlistsFactory, ItemsFactory
+import datetime
 
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
@@ -368,37 +369,37 @@ class TestItemsService(TestCase):
         response = self.client.get(f"{BASE_URL}/customer/{cid}")
         self.assertEqual(response.get_json()["message"],"No wishlists found for this customer - "+str(cid))
     
-    def list_wishlist_items(self):
-        """It should list wishlist items"""
-        test_wishlist = self._create_wishlists(1)
-        id,name,pid,price=[]
-        wishlist_id = test_wishlist[0]["id"]
-        for i in (0,1):
-            test_item = ItemsFactory()
-            id[i] = test_item.id
-            name[i] = test_item.name
-            pid[i] = test_item.product_id
-            price[i]=test_item.price
-            test_item.wishlist_id = test_wishlist.id
-            URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-            response = self.client.post(URL, json=test_item.serialize())
-            #self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    # def test_list_wishlist_items(self):
+    #     """It should list wishlist items"""
+    #     current_time = datetime.datetime.now()
+    #     test_wishlist = Wishlists(name="wishlist-1", customer_id=1, created_on=current_time)
+    #     id,name,pid,price=([None]*2 for i in range(4))
+    #     for i in (0,1):
+    #         test_item = ItemsFactory()
+    #         id[i] = test_item.id
+    #         name[i] = test_item.name
+    #         pid[i] = test_item.product_id
+    #         price[i]=test_item.price
+    #         test_item.wishlist_id = test_wishlist.id
+    #         URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+    #         response = self.client.post(URL, json=test_item.serialize())
+    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-        response = self.client.get(URL)
+    #     URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+    #     response = self.client.get(URL)
         
-        ##Checking Status##
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     ##Checking Status##
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        ##Checking the attributed of the Wishlist Item##
-        n_item = response.get_json()["items"]
+    #     ##Checking the attributed of the Wishlist Item##
+    #     n_item = response.get_json()["items"]
 
-        self.assertEqual(len(n_item), 1)
-        for i in range(0,1):
-            self.assertIn(n_item["id"], id)
-            self.assertIn(n_item["name"], name)
-            self.assertIn(n_item["product_id"], pid)
-            self.assertIn(n_item["price"], price)
+    #     self.assertEqual(len(n_item), 2)
+    #     for i in range(0,1):
+    #         self.assertIn(n_item[i]["id"], id[i])
+    #         self.assertIn(n_item[i]["name"], name[i])
+    #         self.assertIn(n_item[i]["product_id"], pid[i])
+    #         self.assertIn(n_item[i]["price"], price[i])
 
     
    
