@@ -154,6 +154,24 @@ def get_items(wishlist_id, item_id):
     app.logger.info("Returning wishlist item: %s", item.name)
     return jsonify(item.serialize()), status.HTTP_200_OK
 
+######################################################################
+# LIST ALL ITEMS IN A WISHLIST
+######################################################################
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
+def list_items(wishlist_id):
+    """
+    Retrieve a single wishlist item
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for items in wishlist: %s", str(wishlist_id))
+    items = Items.find_by_wishlist_id(wishlist_id)
+    items_serialized = [i.serialize() for i in items]
+    app.logger.info(items_serialized)
+    if len(items_serialized)==0:
+        return {"message":"No items found for this wishlist - "+ str(wishlist_id)}, status.HTTP_200_OK
+
+    app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
+    return jsonify({"items": items_serialized}), status.HTTP_200_OK
 
 ######################################################################
 # DELETE A WISHLIST
