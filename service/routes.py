@@ -3,9 +3,10 @@ My Service
 Describe what your service does here
 """
 
+from email.mime import application
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from .common import status  # HTTP Status Codes
-from service.models import Wishlists,Items
+from service.models import Wishlists, Items
 from flask import request, jsonify
 import json
 
@@ -20,6 +21,7 @@ from . import app
 def healthcheck():
     """Let them know our heart is still beating"""
     return jsonify(status=200, message="Healthy"), status.HTTP_200_OK
+
 
 ######################################################################
 # GET INDEX
@@ -58,7 +60,6 @@ def create_wishlists():
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
-
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
 def get_wishlists(wishlist_id):
     """
@@ -68,10 +69,45 @@ def get_wishlists(wishlist_id):
     app.logger.info("Request for wishlist with id: %s", wishlist_id)
     wishlist = Wishlists.find(wishlist_id)
     if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist with id '{wishlist_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
 
     app.logger.info("Returning wishlist: %s", wishlist.name)
     return jsonify(wishlist.serialize()), status.HTTP_200_OK
+
+@app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
+def rename_wishlist(wishlist_id):
+    """Renames a wishlist to a name specified by the "name" field in the body
+    of the request.
+
+    Args:
+        wishlist_id: The id of the wishlist to rename.
+    """
+    app.logger.info("Request to rename wishlist %d", wishlist_id)
+    wishlist = Wishlists.find(wishlist_id)
+
+    if not wishlist:
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist with id '{wishlist_id}' was not found.",
+        )
+
+    body = request.get_json()
+    app.logger.info("Got body=%s", body)
+
+    new_name = body.get("name", None)
+    if new_name is None:
+        abort(
+            status.HTTP_400_BAD_REQUEST,
+            f"No name was specified to rename {wishlist_id}",
+        )
+
+
+    wishlist.name = new_name
+    wishlist.update()
+    return wishlist.serialize(), status.HTTP_200_OK
 
 
 ######################################################################
@@ -91,10 +127,13 @@ def create_item(wishlist_id):
     item.deserialize(data)
     item.create()
     message = item.serialize()
-    location_url = url_for("get_items", wishlist_id = wishlist_id, item_id=item.id, _external=True)
+    location_url = url_for(
+        "get_items", wishlist_id=wishlist_id, item_id=item.id, _external=True
+    )
 
     app.logger.info("Wishlist Item with ID [%s] created.", item.id)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+
 
 ######################################################################
 # RETRIEVE A WISHLIST ITEM
@@ -103,15 +142,19 @@ def create_item(wishlist_id):
 def get_items(wishlist_id, item_id):
     """
     Retrieve a single wishlist
-    This endpoint will return a wishlist items based on it's id
+    This endpoint will return a wishlist based on it's id
     """
     app.logger.info("Request for items with id: %s", str(item_id))
     item = Items.find(item_id)
     if not item:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist Item with id '{item_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Wishlist Item with id '{item_id}' was not found.",
+        )
 
     app.logger.info("Returning wishlist item: %s", item.name)
     return jsonify(item.serialize()), status.HTTP_200_OK
+
 
 ######################################################################
 # DELETE A WISHLIST
@@ -129,8 +172,10 @@ def delete_wishlists(wishlist_id):
 
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
 ######################################################################
-# DELETE AN ITEM IN WISHLIST
+# DELETE A WISHLIST
 ######################################################################
 
 # /wishlists/{id}/items/{id}
@@ -147,9 +192,12 @@ def delete_items(wishlist_id, item_id):
 
     app.logger.info("Item with ID [%s] delete complete.", item_id)
     return "", status.HTTP_204_NO_CONTENT
+
+
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
+
 
 def check_content_type(content_type):
     """Checks that the media type is correct"""
@@ -170,9 +218,8 @@ def check_content_type(content_type):
     )
 
 
-
 def init_db():
-    """ Initializes the SQLAlchemy app """
+    """Initializes the SQLAlchemy app"""
     global app
     Wishlists.init_db(app)
     Items.init_db(app)
