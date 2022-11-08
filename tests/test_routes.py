@@ -24,6 +24,7 @@ Test cases can be run with the following:
     nosetests --stop tests/test_service.py:TestWishlistsService
 """
 
+from cgi import test
 import os
 import logging
 from unittest import TestCase
@@ -151,6 +152,21 @@ class TestWishlistsService(TestCase):
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
         self.assertEqual(new_wishlist["customer_id"], test_wishlist.customer_id)
+
+    def test_create_wishlists_no_data(self):
+        "should not create a wishlist"
+        response = self.client.post(BASE_URL, json={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_wishlists_no_content_type(self):
+        "should not create a wishlist"
+        response = self.client.post(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_create_wishlists_bad_content_type(self):
+        "should not create a wishlist"
+        response = self.client.post(BASE_URL, headers={'Content-Type': 'application/octet-stream'})
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_delete_wishlist(self):
         """It should Delete a Wishlist"""
@@ -337,6 +353,19 @@ class TestItemsService(TestCase):
         self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
 
+    def test_get_wishlist_not_found(self):
+        """It should not retrieve a wishlist"""
+        test_wishlist = WishlistsFactory()
+        url = BASE_URL + "/0"
+        response = self.client.get(url, json=test_wishlist.serialize())
+
+        ##Checking Status##
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        ##Checking the name and id of the Wishlist##
+        new_wishlist = response.get_json()
+        self.assertIn("was not found.", new_wishlist["message"])
+
     def test_get_wishlist_item(self):
         """It should retrieve items in a wishlist."""
         
@@ -350,6 +379,18 @@ class TestItemsService(TestCase):
         ##Checking the attributed of the Wishlist Item##
         n_item = response.get_json()
         self.assertDictEqual(n_item,test_item)
+
+    def test_get_wishlist_item_not_found(self):
+        """It should not retrieve a wishlist item"""
+        url = BASE_URL + "/0/items/0"
+        response = self.client.get(f'{url}')
+
+        ##Checking Status##
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        ##Checking the name and id of the Wishlist##
+        new_wishlist = response.get_json()
+        self.assertIn("was not found.", new_wishlist["message"])
     
     def test_list_wishlist(self):
         "It should display the wishlists for a particular customer"
@@ -406,3 +447,11 @@ class TestItemsService(TestCase):
         for i in range(0,1):
             self.assertEqual(items_name[i], n_item[i]["name"])
             self.assertEqual(items_pid[i], n_item[i]["product_id"])
+
+
+    def test_unsupported_HTTP_request(self):
+        """It should not allow unsupported HTTP methods"""
+        response = self.client.patch(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+        
