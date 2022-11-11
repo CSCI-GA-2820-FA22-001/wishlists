@@ -194,6 +194,22 @@ class TestWishlistsService(TestCase):
         wishlist = response.get_json()
         self.assertEqual(wishlist["name"], "Test Rename")
 
+    def test_list_all_wishlists(self):
+        "It should display all the wishlists when present. When no wishlists found, it should display a message that no wishlists found"
+        
+
+        response = self.client.get(f"{BASE_URL}")
+        self.assertEqual(response.get_json()["message"],"No wishlists found")
+
+        test_wishlists = self._create_wishlists(5)        
+        ids = [w["id"] for w in test_wishlists]
+        response = self.client.get(f"{BASE_URL}")
+        
+        resp_wishlists = response.get_json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
+        for r in resp_wishlists['wishlists']:
+            self.assertIn(r['id'], ids)
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E
@@ -392,6 +408,9 @@ class TestItemsService(TestCase):
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
     
+    
+       
+        
     def test_list_wishlist(self):
         "It should display the wishlists for a particular customer"
         customer_id = 5678
