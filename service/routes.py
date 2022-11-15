@@ -174,6 +174,23 @@ def list_items(wishlist_id):
     app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
 
+######################################################################
+# LIST ALL THE WISHLISTS
+######################################################################
+@app.route("/wishlists", methods=["GET"])
+def list_all_wishlists():
+    """
+    Retrieve all wishlists
+    This endpoint will return all wishlists
+    """
+    app.logger.info("Request for all wishlists")
+    wishlists = Wishlists.all()
+
+    wishlists_serialized = [w.serialize() for w in wishlists]
+    app.logger.info(wishlists_serialized)
+    if len(wishlists_serialized) == 0:
+        return {"message": "No wishlists found"}, status.HTTP_200_OK
+    return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL WISHLISTS FOR A CUSTOMER
