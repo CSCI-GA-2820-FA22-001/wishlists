@@ -27,7 +27,7 @@ import os
 import logging
 import unittest
 from werkzeug.exceptions import NotFound
-from service.models import Wishlists,Items, DataValidationError, db
+from service.models import Wishlists, Items, DataValidationError, db
 from service import app
 from tests.factories import ItemsFactory, WishlistsFactory
 import datetime
@@ -54,7 +54,6 @@ class TestItemsModel(unittest.TestCase):
         Items.init_db(app)
         Wishlists.init_db(app)
 
-
     @classmethod
     def tearDownClass(cls):
         """This runs once after the entire test suite"""
@@ -77,8 +76,15 @@ class TestItemsModel(unittest.TestCase):
     def test_create_a_item(self):
         """It should Create a item and assert that it exists"""
         current_time = datetime.datetime.now()
-        item = Items(name="item-1", wishlist_id=1, rank=1, quantity=1, price=100, created_on=current_time,
-                     updated_on=current_time)
+        item = Items(
+            name="item-1",
+            wishlist_id=1,
+            rank=1,
+            quantity=1,
+            price=100,
+            created_on=current_time,
+            updated_on=current_time,
+        )
         self.assertEqual(str(item), "<Items 'item-1' id=[None]>")
         self.assertTrue(item is not None)
         self.assertEqual(item.id, None)
@@ -96,10 +102,18 @@ class TestItemsModel(unittest.TestCase):
         self.assertEqual(items, [])
         current_time = datetime.datetime.now()
         wishlist = WishlistsFactory()
-        wishlist.id=None
+        wishlist.id = None
         wishlist.create()
-        item = Items(name="item-1", wishlist_id=wishlist.id, product_id=1, rank=1, quantity=1, price=100, created_on=current_time,
-                     updated_on=current_time)
+        item = Items(
+            name="item-1",
+            wishlist_id=wishlist.id,
+            product_id=1,
+            rank=1,
+            quantity=1,
+            price=100,
+            created_on=current_time,
+            updated_on=current_time,
+        )
         self.assertTrue(item is not None)
         self.assertEqual(item.id, None)
         item.create()
@@ -140,7 +154,7 @@ class TestItemsModel(unittest.TestCase):
         item.wishlist_id = wishlist.id
         logging.debug(item)
         item.id = None
-        item.product_id=1
+        item.product_id = 1
         item.create()
         logging.debug(item)
         self.assertIsNotNone(item.id)

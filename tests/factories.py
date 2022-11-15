@@ -16,10 +16,9 @@
 Test Factory to make fake objects for testing
 """
 import datetime
-from datetime import date
 
 import factory
-from factory.fuzzy import FuzzyChoice, FuzzyDate
+from factory.fuzzy import FuzzyChoice
 from service.models import Wishlists, Items
 
 
@@ -33,13 +32,12 @@ class WishlistsFactory(factory.Factory):
 
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("name")
-    customer_id = FuzzyChoice(choices=[1, 2,3])
+    customer_id = FuzzyChoice(choices=[1, 2, 3])
     created_on = datetime.datetime.now()
 
 
 class ItemsFactory(factory.Factory):
     """Creates fake pets that you don't have to feed"""
-
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Maps factory to data model"""
@@ -49,13 +47,7 @@ class ItemsFactory(factory.Factory):
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("name")
     wishlist_id = 1
-    product_id = FuzzyChoice(choices=[1, 2,3])
-    rank = FuzzyChoice(choices=[1, 2,3])
-    quantity = FuzzyChoice(choices=[1, 2,3])
-    price = FuzzyChoice(choices=[100, 200,300])
-
-
-
-
-
-
+    product_id = FuzzyChoice(choices=[1, 2, 3])
+    rank = FuzzyChoice(choices=[1, 2, 3])
+    quantity = FuzzyChoice(choices=[1, 2, 3])
+    price = FuzzyChoice(choices=[100, 200, 300])
