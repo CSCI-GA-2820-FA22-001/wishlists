@@ -159,12 +159,8 @@ class Items(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63), nullable=False)
-<<<<<<< HEAD
+    name = db.Column(db.String(63), nullable=False)   
     wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlists.id', ondelete="CASCADE"), nullable=False)
-=======
-    wishlist_id = db.Column(db.Integer, db.ForeignKey("wishlists.id"), nullable=False)
->>>>>>> 5e18d58d74b31df1fc477148e7814885f9985e31
     product_id = db.Column(db.Integer, nullable=False)
     rank = db.Column(db.Integer, nullable=False, default=0)
     quantity = db.Column(db.Integer, nullable=False, default=1)
