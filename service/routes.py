@@ -169,13 +169,16 @@ def list_items(wishlist_id):
     items_serialized = [i.serialize() for i in items]
     app.logger.info(items_serialized)
     if len(items_serialized) == 0:
-        return {"message": "No items found for this wishlist - " + str(wishlist_id)}, status.HTTP_200_OK
+        return {
+            "message": "No items found for this wishlist - " + str(wishlist_id)
+        }, status.HTTP_200_OK
 
     app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
 
+
 ######################################################################
-# LIST ALL THE WISHLISTS / FOR A CUSTOMER 
+# LIST ALL THE WISHLISTS / FOR A CUSTOMER
 ######################################################################
 @app.route("/wishlists", methods=["GET"])
 def list_all_wishlists():
@@ -184,8 +187,7 @@ def list_all_wishlists():
     This endpoint will return all wishlists
     """
 
-   
-    if (request.args):
+    if request.args:
         args = request.args
         customer_id = args.get("customer_id", type=int)
         app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
@@ -193,9 +195,12 @@ def list_all_wishlists():
         wishlists_serialized = [w.serialize() for w in wishlists]
         app.logger.info(wishlists_serialized)
         if len(wishlists_serialized) == 0:
-            return {"message": "No wishlists found for the customer id - " + str(customer_id)}, status.HTTP_200_OK
+            return {
+                "message": "No wishlists found for the customer id - "
+                + str(customer_id)
+            }, status.HTTP_200_OK
         # app.logger.info("Returning wishlist:", wishlists)
-        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK  
+        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
     else:
         app.logger.info("Request for all wishlists")
         wishlists = Wishlists.all()
@@ -205,6 +210,7 @@ def list_all_wishlists():
         if len(wishlists_serialized) == 0:
             return {"message": "No wishlists found"}, status.HTTP_200_OK
         return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
+
 
 ######################################################################
 # LIST ALL WISHLISTS FOR A CUSTOMER
@@ -221,7 +227,9 @@ def list_wishlists(customer_id):
     wishlists_serialized = [w.serialize() for w in wishlists]
     app.logger.info(wishlists_serialized)
     if len(wishlists_serialized) == 0:
-        return {"message": "No wishlists found for this customer - " + str(customer_id)}, status.HTTP_200_OK
+        return {
+            "message": "No wishlists found for this customer - " + str(customer_id)
+        }, status.HTTP_200_OK
     # app.logger.info("Returning wishlist:", wishlists)
     return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
     # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
