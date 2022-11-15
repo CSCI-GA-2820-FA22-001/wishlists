@@ -197,6 +197,7 @@ class TestWishlistsService(TestCase):
         self.assertEqual(wishlist["name"], "Test Rename")
 
     def test_list_all_wishlists(self):
+    
         "It should display all the wishlists when present."
 
         response = self.client.get(f"{BASE_URL}")
@@ -309,6 +310,32 @@ class TestItemsService(TestCase):
             test_wishlists.id = new_wishlist["id"]
             wishlists.append(new_wishlist)
         return wishlists
+
+
+    def _create_wishlist_with_items(self, item_count):
+        """Creates a wishlist with item_item count items."""
+        test_wishlist = WishlistsFactory()
+        test_wishlist.id = None
+        test_wishlist.create()
+        items_name, items_pid = [None] * item_count, [None] * item_count
+        for i in range(item_count):
+            test_item = ItemsFactory()
+            test_item.wishlist_id = test_wishlist.id
+            url = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+            response = self.client.post(url, json=test_item.serialize())
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+            # Make sure location header is set
+            location = response.headers.get("Location", None)
+            self.assertIsNotNone(location)
+
+            # Check the data is correct
+            new_item = response.get_json()
+            self.assertEqual(new_item["name"], test_item.name)
+            self.assertEqual(new_item["product_id"], test_item.product_id)
+            items_name[i] = new_item["name"]
+            items_pid[i] = new_item["product_id"]
+        return test_wishlist, {"name": items_name, "pid": items_pid}
 
     ######################################################################
     #  T E S T   C A S E S
@@ -440,30 +467,11 @@ class TestItemsService(TestCase):
 
     def test_list_wishlist_items(self):
         """It should list wishlist items"""
-        test_wishlist = WishlistsFactory()
-        test_wishlist.id = None
-        test_wishlist.create()
-        items_name, items_pid = ([None] * 2 for i in range(2))
-        for i in range(2):
-            test_item = ItemsFactory()
-            test_item.wishlist_id = test_wishlist.id
-            url = BASE_URL + "/" + str(test_wishlist.id) + "/items"
-            response = self.client.post(url, json=test_item.serialize())
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-            # Make sure location header is set
-            location = response.headers.get("Location", None)
-            self.assertIsNotNone(location)
-
-            # Check the data is correct
-            new_item = response.get_json()
-            self.assertEqual(new_item["name"], test_item.name)
-            self.assertEqual(new_item["product_id"], test_item.product_id)
-            items_name[i] = new_item["name"]
-            items_pid[i] = new_item["product_id"]
+        test_wishlist, item_info = self._create_wishlist_with_items(2)
 
         URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
         response = self.client.get(URL)
+
 
         # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -473,10 +481,24 @@ class TestItemsService(TestCase):
 
         self.assertEqual(len(n_item), 2)
         for i in range(0, 1):
-            self.assertEqual(items_name[i], n_item[i]["name"])
-            self.assertEqual(items_pid[i], n_item[i]["product_id"])
+            self.assertEqual(item_info["name"][i], n_item[i]["name"])
+            self.assertEqual(item_info["pid"][i], n_item[i]["product_id"])
+            
 
     def test_unsupported_HTTP_request(self):
         """It should not allow unsupported HTTP methods"""
         response = self.client.patch(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_clear_wishlist(self):
+        """It should clear a wishlist of its items."""
+        test_wishlist, _ = self._create_wishlist_with_items(3)
+        self.assertEqual(len(test_wishlist.items), 3)
+        response = self.client.delete(f"{BASE_URL}/{test_wishlist.id}/items")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(test_wishlist.items, [])
+        response = self.client.get(f"{BASE_URL}/{test_wishlist.id}")
+        self.assertFalse("items" in response.get_json())
+

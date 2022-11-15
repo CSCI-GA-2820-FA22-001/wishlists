@@ -253,6 +253,26 @@ def delete_wishlists(wishlist_id):
     return "", status.HTTP_204_NO_CONTENT
 
 
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
+def clear_wishlist(wishlist_id):
+    """Clears a wishlist of all items
+
+    Args:
+        wishlist_id: The wishlist to clear.
+    """
+    app.logger.info("Request to clear wishlist with id: %s", wishlist_id)
+    wishlist = Wishlists.find(wishlist_id)
+
+    if wishlist:
+        while wishlist.items:
+            item = wishlist.items[0]
+            wishlist.items.remove(item)
+            item.delete()
+
+    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
+    return "", status.HTTP_204_NO_CONTENT
+
+
 ######################################################################
 # DELETE A WISHLIST
 ######################################################################
