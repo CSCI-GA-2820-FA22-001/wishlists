@@ -391,10 +391,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/" + str(test_wishlist_id)
         response = self.client.get(url, json=test_wishlist.serialize())
 
-        #Checking Status#
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Checking the name and id of the Wishlist#
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
@@ -405,10 +405,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/0"
         response = self.client.get(url, json=test_wishlist.serialize())
 
-        #Checking Status#
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        #Checking the name and id of the Wishlist#
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
 
@@ -419,10 +419,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
         response = self.client.get(f'{url}/{test_item["id"]}', json=test_item)
 
-        #Checking Status#
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Checking the attributed of the Wishlist Item#
+        # Checking the attributed of the Wishlist Item
         n_item = response.get_json()
         self.assertDictEqual(n_item, test_item)
 
@@ -431,10 +431,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/0/items/0"
         response = self.client.get(f"{url}")
 
-        #Checking Status#
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        #Checking the name and id of the Wishlist#
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
 
@@ -465,10 +465,10 @@ class TestItemsService(TestCase):
         URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
         response = self.client.get(URL)
 
-        #Checking Status#
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        #Checking the attributed of the Wishlist Item#
+        # Checking the attributed of the Wishlist Item
         n_item = response.get_json()["items"]
 
         self.assertEqual(len(n_item), 2)
