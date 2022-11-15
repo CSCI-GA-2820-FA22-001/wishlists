@@ -78,14 +78,14 @@ def get_wishlists(wishlist_id):
 
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["PUT"])
-def rename_wishlist(wishlist_id):
+def update_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
     of the request.
 
     Args:
-        wishlist_id: The id of the wishlist to rename.
+        wishlist_id: The id of the wishlist to update.
     """
-    app.logger.info("Request to rename wishlist %d", wishlist_id)
+    app.logger.info("Request to update wishlist %d", wishlist_id)
     wishlist = Wishlists.find(wishlist_id)
 
     if not wishlist:
@@ -101,7 +101,7 @@ def rename_wishlist(wishlist_id):
     if new_name is None:
         abort(
             status.HTTP_400_BAD_REQUEST,
-            f"No name was specified to rename {wishlist_id}",
+            f"No name was specified to update {wishlist_id}",
         )
 
     wishlist.name = new_name
@@ -273,7 +273,7 @@ def update_product(wishlist_id, item_id):
 
     new_name = body.get("product_name", None)
     if not new_name:
-        abort(status.HTTP_400_BAD_REQUEST, "No product name passed to rename.")
+        abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
 
     wishlist_product.name = new_name
     wishlist_product.update()
