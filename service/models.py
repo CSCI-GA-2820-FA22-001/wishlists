@@ -16,7 +16,8 @@ db = SQLAlchemy()
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
+
     pass
 
 
@@ -32,7 +33,7 @@ class Wishlists(db.Model):
     name = db.Column(db.String(63), nullable=False)
     customer_id = db.Column(db.Integer, nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.datetime.now())
-    items = db.relationship('Items', backref='wishlists', lazy=True)
+    items = db.relationship("Items", backref="wishlists", lazy=True)
 
     def __repr__(self):
         return "<Wishlist %r id=[%s]>" % (self.name, self.id)
@@ -56,17 +57,19 @@ class Wishlists(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a wishlist from the data store """
+        """Removes a wishlist from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a wishlist into a dictionary """
-        return {"id": self.id,
-                "name": self.name,
-                "customer_id": self.customer_id,
-                "created_on": self.created_on}
+        """Serializes a wishlist into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "customer_id": self.customer_id,
+            "created_on": self.created_on,
+        }
 
     def deserialize(self, data):
         """
@@ -85,7 +88,9 @@ class Wishlists(db.Model):
                     + str(type(data["customer_id"]))
                 )
         except KeyError as error:
-            raise DataValidationError("Invalid Wishlist : missing " + str(error.args[0]))
+            raise DataValidationError(
+                "Invalid Wishlist : missing " + str(error.args[0])
+            )
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Wishlist: body of request contained bad or no data - "
@@ -95,7 +100,7 @@ class Wishlists(db.Model):
 
     @classmethod
     def init_db(cls, app):
-        """ Initializes the database session """
+        """Initializes the database session"""
         logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
@@ -105,13 +110,13 @@ class Wishlists(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the wishlist in the database """
+        """Returns all of the wishlist in the database"""
         logger.info("Processing all WishlistsModels")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a wishlist by it's ID """
+        """Finds a wishlist by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
@@ -137,7 +142,7 @@ class Wishlists(db.Model):
 
     @classmethod
     def find_or_404(cls, by_id):
-        """ Finds a wishlist item by it's ID """
+        """Finds a wishlist item by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         wishlist = cls.query.get(by_id)
         if not wishlist:
@@ -155,7 +160,7 @@ class Items(db.Model):
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlists.id'), nullable=False)
+    wishlist_id = db.Column(db.Integer, db.ForeignKey("wishlists.id"), nullable=False)
     product_id = db.Column(db.Integer, nullable=False)
     rank = db.Column(db.Integer, nullable=False, default=0)
     quantity = db.Column(db.Integer, nullable=False, default=1)
@@ -185,25 +190,27 @@ class Items(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a wishlist item from the data store """
+        """Removes a wishlist item from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a wishlist item into a dictionary """
-        return {"id": self.id,
-                "name": self.name,
-                "wishlist_id": self.wishlist_id,
-                "product_id": self.product_id,
-                "created_on": self.created_on,
-                "rank": self.rank,
-                "price": self.price,
-                "quantity": self.quantity,
-                "updated_on": self.updated_on}
+        """Serializes a wishlist item into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "wishlist_id": self.wishlist_id,
+            "product_id": self.product_id,
+            "created_on": self.created_on,
+            "rank": self.rank,
+            "price": self.price,
+            "quantity": self.quantity,
+            "updated_on": self.updated_on,
+        }
 
     def deserialize_check_pid(self, data):
-        """ Deserialize helper """
+        """Deserialize helper"""
         if isinstance(data["product_id"], int):
             self.product_id = data["product_id"]
         else:
@@ -213,12 +220,14 @@ class Items(db.Model):
             )
 
     def deserialize_check_wid(self, data):
-        """ Deserialize helper """
+        """Deserialize helper"""
         if isinstance(data["wishlist_id"], int):
             wishlist = Wishlists.find(data["wishlist_id"])
             if not wishlist:
                 raise DataValidationError(
-                    "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(data["wishlist_id"])
+                    "Invalid wishlist id : Wishlist with id : {0} doesn't exist".format(
+                        data["wishlist_id"]
+                    )
                 )
 
             self.wishlist_id = data["wishlist_id"]
@@ -229,14 +238,13 @@ class Items(db.Model):
             )
 
     def deserialize_check_meta(self, data):
-        """ Deserialize helper """
+        """Deserialize helper"""
         if data.get("rank", None):
             if isinstance(data["rank"], int):
                 self.rank = data["rank"]
             else:
                 raise DataValidationError(
-                    "Invalid type for integer [rank]: "
-                    + str(type(data["rank"]))
+                    "Invalid type for integer [rank]: " + str(type(data["rank"]))
                 )
 
         if data.get("price", None):
@@ -244,9 +252,8 @@ class Items(db.Model):
                 self.price = data["price"]
             else:
                 raise DataValidationError(
-                    "Invalid type for integer [price]: "
-                    + str(type(data["price"]))
-                                    )
+                    "Invalid type for integer [price]: " + str(type(data["price"]))
+                )
 
         if data.get("quantity", None):
             if isinstance(data["quantity"], int):
@@ -292,7 +299,7 @@ class Items(db.Model):
 
     @classmethod
     def init_db(cls, app):
-        """ Initializes the database session """
+        """Initializes the database session"""
         logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
@@ -302,13 +309,13 @@ class Items(db.Model):
 
     @classmethod
     def all(cls):
-        """ Returns all of the wishlist items in the database """
+        """Returns all of the wishlist items in the database"""
         logger.info("Processing all WishlistsModels")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a wishlist item by it's ID """
+        """Finds a wishlist item by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
@@ -334,7 +341,7 @@ class Items(db.Model):
 
     @classmethod
     def find_or_404(cls, by_id):
-        """ Finds a wishlist item by it's ID """
+        """Finds a wishlist item by it's ID"""
         logger.info("Processing lookup for id %s ...", by_id)
         item = cls.query.get(by_id)
         if not item:
