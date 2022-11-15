@@ -255,8 +255,8 @@ def delete_items(wishlist_id, item_id):
 # UPDATE A PRODUCT IN A WISHLIST ITEM
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
-def update_product(wishlist_id, item_id):
-    """Updates the name of a product in a wishlist."""
+def update_item(wishlist_id, item_id):
+    """Updates the name of an item in a wishlist."""
     app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
     wishlist = Wishlists.find(wishlist_id)
 
