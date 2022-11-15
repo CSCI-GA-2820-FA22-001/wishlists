@@ -225,7 +225,9 @@ class TestWishlistsModel(unittest.TestCase):
         for wishlist in wishlists:
             wishlist.create()
         customer_id = wishlists[0].customer_id
-        count = len([wishlist for wishlist in wishlists if wishlist.customer_id == customer_id])
+        count = len(
+            [wishlist for wishlist in wishlists if wishlist.customer_id == customer_id]
+        )
         found = Wishlists.find_by_customer_id(customer_id)
         self.assertEqual(found.count(), count)
         for wishlist in found:

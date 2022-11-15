@@ -24,18 +24,15 @@ Test cases can be run with the following:
     nosetests --stop tests/test_service.py:TestWishlistsService
 """
 
-from cgi import test
 import os
 import logging
 from unittest import TestCase
 
 # from unittest.mock import MagicMock, patch
-from urllib.parse import quote_plus
 from service import app
 from service.common import status
 from service.models import db, Wishlists, Items
 from tests.factories import WishlistsFactory, ItemsFactory
-import datetime
 
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
@@ -200,7 +197,8 @@ class TestWishlistsService(TestCase):
         self.assertEqual(wishlist["name"], "Test Rename")
 
     def test_list_all_wishlists(self):
-        "It should display all the wishlists when present. When no wishlists found, it should display a message that no wishlists found"
+    
+        "It should display all the wishlists when present."
 
         response = self.client.get(f"{BASE_URL}")
         self.assertEqual(response.get_json()["message"], "No wishlists found")
@@ -211,27 +209,35 @@ class TestWishlistsService(TestCase):
 
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
-        for r in resp_wishlists['wishlists']:
-            self.assertIn(r['id'], ids)
-    
+        self.assertEqual(len(resp_wishlists["wishlists"]), len(test_wishlists))
+        for r in resp_wishlists["wishlists"]:
+            self.assertIn(r["id"], ids)
+
     def test_list_wishlist(self):
         "It should display the wishlists for a particular customer"
         customer_id = 5678
-        test_wishlists = self._create_wishlists_by_customer(5,customer_id)
-        
+        test_wishlists = self._create_wishlists_by_customer(5, customer_id)
+
         ids = [w["id"] for w in test_wishlists]
-        response = self.client.get(f"{BASE_URL}",query_string ="customer_id="+str(customer_id))
-        
+        response = self.client.get(
+            f"{BASE_URL}", query_string="customer_id=" + str(customer_id)
+        )
+
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
-        for r in resp_wishlists['wishlists']:
-            self.assertEqual(r['customer_id'], customer_id)
-            self.assertIn(r['id'], ids)
+        self.assertEqual(len(resp_wishlists["wishlists"]), len(test_wishlists))
+        for r in resp_wishlists["wishlists"]:
+            self.assertEqual(r["customer_id"], customer_id)
+            self.assertIn(r["id"], ids)
         cid = 789
-        response = self.client.get(f"{BASE_URL}",query_string ="customer_id="+str(cid))
-        self.assertEqual(response.get_json()["message"],"No wishlists found for the customer id - "+str(cid))
+        response = self.client.get(
+            f"{BASE_URL}", query_string="customer_id=" + str(cid)
+        )
+        self.assertEqual(
+            response.get_json()["message"],
+            "No wishlists found for the customer id - " + str(cid),
+        )
+
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E
@@ -304,6 +310,7 @@ class TestItemsService(TestCase):
             test_wishlists.id = new_wishlist["id"]
             wishlists.append(new_wishlist)
         return wishlists
+
 
     def _create_wishlist_with_items(self, item_count):
         """Creates a wishlist with item_item count items."""
@@ -411,10 +418,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/" + str(test_wishlist_id)
         response = self.client.get(url, json=test_wishlist.serialize())
 
-        ##Checking Status##
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ##Checking the name and id of the Wishlist##
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertEqual(new_wishlist["id"], test_wishlist.id)
         self.assertEqual(new_wishlist["name"], test_wishlist.name)
@@ -425,10 +432,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/0"
         response = self.client.get(url, json=test_wishlist.serialize())
 
-        ##Checking Status##
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        ##Checking the name and id of the Wishlist##
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
 
@@ -439,10 +446,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/" + str(test_item["wishlist_id"]) + "/items"
         response = self.client.get(f'{url}/{test_item["id"]}', json=test_item)
 
-        ##Checking Status##
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ##Checking the attributed of the Wishlist Item##
+        # Checking the attributed of the Wishlist Item
         n_item = response.get_json()
         self.assertDictEqual(n_item, test_item)
 
@@ -451,10 +458,10 @@ class TestItemsService(TestCase):
         url = BASE_URL + "/0/items/0"
         response = self.client.get(f"{url}")
 
-        ##Checking Status##
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        ##Checking the name and id of the Wishlist##
+        # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
 
@@ -465,16 +472,18 @@ class TestItemsService(TestCase):
         URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
         response = self.client.get(URL)
 
-        ##Checking Status##
+
+        # Checking Status
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        ##Checking the attributed of the Wishlist Item##
+        # Checking the attributed of the Wishlist Item
         n_item = response.get_json()["items"]
 
         self.assertEqual(len(n_item), 2)
         for i in range(0, 1):
             self.assertEqual(item_info["name"][i], n_item[i]["name"])
             self.assertEqual(item_info["pid"][i], n_item[i]["product_id"])
+            
 
     def test_unsupported_HTTP_request(self):
         """It should not allow unsupported HTTP methods"""
@@ -492,3 +501,4 @@ class TestItemsService(TestCase):
         self.assertEqual(test_wishlist.items, [])
         response = self.client.get(f"{BASE_URL}/{test_wishlist.id}")
         self.assertFalse("items" in response.get_json())
+
