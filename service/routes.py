@@ -169,10 +169,13 @@ def list_items(wishlist_id):
     items_serialized = [i.serialize() for i in items]
     app.logger.info(items_serialized)
     if len(items_serialized) == 0:
-        return {"message": "No items found for this wishlist - " + str(wishlist_id)}, status.HTTP_200_OK
+        return {
+            "message": "No items found for this wishlist - " + str(wishlist_id)
+        }, status.HTTP_200_OK
 
     app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
+
 
 ######################################################################
 # LIST ALL THE WISHLISTS
@@ -192,6 +195,7 @@ def list_all_wishlists():
         return {"message": "No wishlists found"}, status.HTTP_200_OK
     return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
 
+
 ######################################################################
 # LIST ALL WISHLISTS FOR A CUSTOMER
 ######################################################################
@@ -207,7 +211,9 @@ def list_wishlists(customer_id):
     wishlists_serialized = [w.serialize() for w in wishlists]
     app.logger.info(wishlists_serialized)
     if len(wishlists_serialized) == 0:
-        return {"message": "No wishlists found for this customer - " + str(customer_id)}, status.HTTP_200_OK
+        return {
+            "message": "No wishlists found for this customer - " + str(customer_id)
+        }, status.HTTP_200_OK
     # app.logger.info("Returning wishlist:", wishlists)
     return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
     # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
@@ -226,6 +232,26 @@ def delete_wishlists(wishlist_id):
     wishlist = Wishlists.find(wishlist_id)
     if wishlist:
         wishlist.delete()
+
+    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
+    return "", status.HTTP_204_NO_CONTENT
+
+
+@app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
+def clear_wishlist(wishlist_id):
+    """Clears a wishlist of all items
+
+    Args:
+        wishlist_id: The wishlist to clear.
+    """
+    app.logger.info("Request to clear wishlist with id: %s", wishlist_id)
+    wishlist = Wishlists.find(wishlist_id)
+
+    if wishlist:
+        while wishlist.items:
+            item = wishlist.items[0]
+            wishlist.items.remove(item)
+            item.delete()
 
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
