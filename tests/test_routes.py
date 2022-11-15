@@ -211,10 +211,27 @@ class TestWishlistsService(TestCase):
 
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp_wishlists["wishlists"]), len(test_wishlists))
-        for r in resp_wishlists["wishlists"]:
-            self.assertIn(r["id"], ids)
-
+        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
+        for r in resp_wishlists['wishlists']:
+            self.assertIn(r['id'], ids)
+    
+    def test_list_wishlist(self):
+        "It should display the wishlists for a particular customer"
+        customer_id = 5678
+        test_wishlists = self._create_wishlists_by_customer(5,customer_id)
+        
+        ids = [w["id"] for w in test_wishlists]
+        response = self.client.get(f"{BASE_URL}",query_string ="customer_id="+str(customer_id))
+        
+        resp_wishlists = response.get_json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp_wishlists['wishlists']),len(test_wishlists))
+        for r in resp_wishlists['wishlists']:
+            self.assertEqual(r['customer_id'], customer_id)
+            self.assertIn(r['id'], ids)
+        cid = 789
+        response = self.client.get(f"{BASE_URL}",query_string ="customer_id="+str(cid))
+        self.assertEqual(response.get_json()["message"],"No wishlists found for the customer id - "+str(cid))
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E
@@ -440,27 +457,6 @@ class TestItemsService(TestCase):
         ##Checking the name and id of the Wishlist##
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
-
-    def test_list_wishlist(self):
-        "It should display the wishlists for a particular customer"
-        customer_id = 5678
-        test_wishlists = self._create_wishlists_by_customer(5, customer_id)
-
-        ids = [w["id"] for w in test_wishlists]
-        response = self.client.get(f"{BASE_URL}/customer/{customer_id}")
-
-        resp_wishlists = response.get_json()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp_wishlists["wishlists"]), len(test_wishlists))
-        for r in resp_wishlists["wishlists"]:
-            self.assertEqual(r["customer_id"], customer_id)
-            self.assertIn(r["id"], ids)
-        cid = 789
-        response = self.client.get(f"{BASE_URL}/customer/{cid}")
-        self.assertEqual(
-            response.get_json()["message"],
-            "No wishlists found for this customer - " + str(cid),
-        )
 
     def test_list_wishlist_items(self):
         """It should list wishlist items"""
