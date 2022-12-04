@@ -24,7 +24,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: wishlists
-        image: us.icr.io/jaikar/wishlists:1.0
+        image: us.icr.io/jaikar/nyu-wishlists:1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -39,7 +39,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 30
           httpGet:
-            path: /health
+            path: /healthcheck
             port: 8080
         resources:
           limits:
