@@ -13,6 +13,7 @@ from .common import log_handlers
 app = Flask(__name__)
 app.config.from_object(config)
 
+
 # Dependencies require we import the routes AFTER the Flask app is created
 # pylint: disable=wrong-import-position, wrong-import-order
 from service import routes  # noqa: E402, E261
@@ -33,5 +34,6 @@ except Exception as error:
     app.logger.critical("%s: Cannot continue", error)
     # gunicorn requires exit code 4 to stop spawning workers when they die
     sys.exit(4)
+
 
 app.logger.info("Service initialized!")
