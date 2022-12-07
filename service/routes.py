@@ -43,8 +43,73 @@ def index():
 # CONFIGURING MODELS
 ######################################################################
 
+WISHLISTS_MODEL = API.model(
+    "WISHLISTS",
+    {
+        "id": fields.Integer(
+            required=True,
+            example=1
+            description="The unique ID given to a Wishlist.",
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_WISHLIST",
+            description="The name of the wishlist.",
+        ),
+        "customer_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the customer who has created the wishlist.",
+        )
+    },
+)
 
 
+ITEMS_MODEL = API.model(
+    "Items",
+    {
+        "id": fields.Integer(
+            required=True,
+            example=1
+            description="The unique ID given to an Item.",
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_ITEM",
+            description="The name of the item.",
+        ),
+        "wishlist_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the wishlist in which item is added.",
+        ),
+        "product_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the product.",
+        ),
+        "rank": fields.Integer(
+            required=True,
+            example=1,
+            description="Order in the wishlist.",
+        ),
+        "quantity": fields.Integer(
+            required=True,
+            example=1,
+            description="Quantity of the item.",
+        ),
+        "price": fields.Integer(
+            required=True,
+            example='$20',
+            description="Price of the item.",
+        )
+    },
+)
+
+# query string arguments
+wishlist_args = reqparse.RequestParser()
+wishlist_args.add_argument('name', type=str, location='args', required=False, help='List wishlist by name')
+wishlist_args.add_argument('customer_id', type=str, location='args', required=False, help='List wishlists by customer id')
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
