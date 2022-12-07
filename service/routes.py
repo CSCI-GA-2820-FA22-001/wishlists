@@ -6,6 +6,7 @@ Describe what your service does here
 
 # from email.mime import application
 from flask import jsonify, request, url_for, abort
+from flask_restx import Api, Resource, fields, reqparse, inputs
 from service.models import Wishlists, Items
 from .common import status  # HTTP Status Codes
 
@@ -37,6 +38,11 @@ def index():
         ),
         status.HTTP_200_OK,
     )
+
+######################################################################
+# CONFIGURING MODELS
+######################################################################
+
 
 
 ######################################################################
