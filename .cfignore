@@ -1,15 +1,20 @@
-# Local OS metadata
+# File Cloud Foundry does't need
+.git/
+Dockerfile
+Jenkinsfile
+Vagrantfile
+
+# Local environment
 .DS_Store
 Thumbs.db
 
 # Vagrant
 .vagrant/
 
-# TDD
+# Test reports
 unittests.xml
 
-# databases
-#*.db
+# database files
 db/*
 !db/.keep
 
@@ -60,7 +65,6 @@ htmlcov/
 .coverage.*
 .cache
 nosetests.xml
-.noseids
 coverage.xml
 *,cover
 .hypothesis/

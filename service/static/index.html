@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wishlists Demo REST API Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="static/images/newapp-icon.png">
+    <link rel="stylesheet" href="static/css/cerulean_bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="page-header">
+          <h1>Wishlist REST API Service</h1>
+      </div>
+
+      <!-- Flash Message -->
+      <div class="table-responsive">
+        <table class="table">
+          <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+        </table>
+      </div>
+
+      <!-- FORM -->
+      <div class="col-md-12" id="form_data">
+        <h3>Create, Retrieve, Update, and Delete a Wishlist:</h3>
+        <div class="well">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="wishlist_id">Wishlist ID:</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" id="wishlist_id" placeholder="Enter ID of Wishlist">
+              </div>
+              <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
+                <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+
+          <div class="form-horizontal">
+
+            <!-- NAME -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="wishlist_name">Name:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="wishlist_name" placeholder="Enter name for Wishlist">
+              </div>
+            </div>
+
+            <!-- CUSTOMER ID -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="customer_id">Customer ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="customer_id" placeholder="Enter customer ID for Wishlist">
+              </div>
+            </div>
+
+            <!-- ITEM ID -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_id" placeholder="Enter an Item ID">
+              </div>
+            </div>
+
+            <!-- ITEM Name -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_name">Item name:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_name" placeholder="Enter an Item name">
+              </div>
+            </div>
+
+             <!-- product  ID -->
+             <div class="form-group">
+              <label class="control-label col-sm-2" for="product_id">Product ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="product_id" placeholder="Enter Product ID">
+              </div>
+            </div>
+            <!-- ITEM quantity -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_quantity">Item quantity:</label>
+              <div class="col-sm-10">
+                <input type="int" class="form-control" id="item_quantity" placeholder="Enter Item quantity">
+              </div>
+            </div>
+
+            <!-- ITEM price -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_price">Item price:</label>
+              <div class="col-sm-10">
+                <input type="decimal" class="form-control" id="item_price" placeholder="Enter Item price">
+              </div>
+            </div>
+
+
+           
+            <!-- CREATED ON -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="wishlist_created">Created On:</label>
+              <div class="col-sm-10">
+                <input type="date" class="form-control" id="wishlist_created" placeholder="2020-04-01">
+              </div>
+            </div>
+
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+              </div>
+            </div>
+          </div> <!-- form horizontal -->
+        </div> <!-- end well -->
+      </div> <!-- end Form -->
+
+      <!-- Search Results -->
+      <div class="table-responsive col-md-12" id="search_results">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th class="col-md-1">ID</th>
+            <th class="col-md-4">Name</th>
+            <th class="col-md-4">Customer ID</th>
+            <th class="col-md-3">Created On</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+
+      <footer>
+        <br><br>
+        <p>&copy; NYU DevOps Company 2022</p>
+      </footer>
+
+    </div> <!-- container -->
+
+  <script type="text/javascript" src = "static/js/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
+
+  <!-- YOUR REST API -->
+  <script type="text/javascript" src="static,js/rest_api.js"></script>
+
+  </body>
+</html>

@@ -28,6 +28,9 @@
         "**/*.pyc": true,
         "**/__pycache__": true
     },
+    "cSpell.words": [
+        "CSCI"
+    ]
     "python.formatting.provider": "black"
 }
 
