@@ -110,6 +110,24 @@ ITEMS_MODEL = API.model(
 wishlist_args = reqparse.RequestParser()
 wishlist_args.add_argument('name', type=str, location='args', required=False, help='List wishlist by name')
 wishlist_args.add_argument('customer_id', type=str, location='args', required=False, help='List wishlists by customer id')
+
+######################################################################
+# Authorization Decorator
+######################################################################
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'X-Api-Key' in request.headers:
+            token = request.headers['X-Api-Key']
+
+        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
+            return f(*args, **kwargs)
+        else:
+            return {'message': 'Invalid or missing token'}, 401
+    return decorated
+
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
