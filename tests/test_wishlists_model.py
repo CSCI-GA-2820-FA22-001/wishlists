@@ -199,7 +199,7 @@ class TestWishlistsModel(unittest.TestCase):
         """It should not deserialize a bad customer_id attribute"""
         test_wishlist = WishlistsFactory()
         data = test_wishlist.serialize()
-        data["customer_id"] = "1"
+        data["customer_id"] = "bad id"
         wishlist = Wishlists()
         self.assertRaises(DataValidationError, wishlist.deserialize, data)
 
