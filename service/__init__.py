@@ -5,6 +5,7 @@ This module creates and configures the Flask app and sets up the logging
 and SQL database
 """
 import sys
+import logging
 from flask import Flask
 from service import config
 from flask_restx import Api
