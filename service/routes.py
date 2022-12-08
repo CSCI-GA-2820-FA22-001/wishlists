@@ -11,7 +11,7 @@ from service.models import Wishlists, Items
 from .common import status  # HTTP Status Codes
 
 # Import Flask application
-from . import app
+from . import app, api
 
 
 ######################################################################
