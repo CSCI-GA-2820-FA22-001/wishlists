@@ -6,11 +6,12 @@ Describe what your service does here
 
 # from email.mime import application
 from flask import jsonify, request, url_for, abort
+from flask_restx import Api, Resource, fields, reqparse, inputs
 from service.models import Wishlists, Items
 from .common import status  # HTTP Status Codes
 
 # Import Flask application
-from . import app
+from . import app, api
 
 
 ######################################################################
@@ -25,26 +26,140 @@ def healthcheck():
 ######################################################################
 # GET INDEX
 ######################################################################
-
 @app.route("/")
 def index():
     """Root URL response"""
     app.logger.info("Request for Root URL")
-    return app.send_static_file("index.html")
-    #return (
-     #   jsonify(
-      #      name="Wishlists Demo REST API Service",
-        #    version="1.0",
-       #     paths=url_for("create_wishlists", _external=True),
-        #),
-        #status.HTTP_200_OK,
-    #)
+    return (
+        jsonify(
+            name="Wishlists Demo REST API Service",
+            version="1.0",
+            paths=url_for("create_wishlists", _external=True),
+        ),
+        status.HTTP_200_OK,
+    )
 
+######################################################################
+# CONFIGURING MODELS
+######################################################################
+
+WISHLISTS_MODEL = api.model(
+    "WISHLISTS",
+    {
+        "id": fields.Integer(
+            required=True,
+            example=1,
+            description="The unique ID given to a Wishlist."
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_WISHLIST",
+            description="The name of the wishlist.",
+        ),
+        "customer_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the customer who has created the wishlist."
+        )
+    }
+)
+
+Create_Wishlist_Item_Model = api.model('Create Wishlist Items', {
+    'id': fields.Integer(required=True,
+                                 description='ID number of the item.'),
+    'name': fields.String(required=True,
+                                  description='Name of the item.')
+})
+
+Wishlist_Item_Model = api.model('Wishlist Product', {
+    'wishlist_id': fields.Integer(readOnly=True,
+                                  description='Wishlist unique ID'),
+    'id': fields.Integer(required=True,
+                                 description='ID of the item.'),
+    'name': fields.String(required=True,
+                                  description='Name of the item.')
+})
+
+
+ITEMS_MODEL = api.model(
+    "Items",
+    {
+        "id": fields.Integer(
+            required=True,
+            example=1,
+            description="The unique ID given to an Item."
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_ITEM",
+            description="The name of the item."
+        ),
+        "wishlist_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the wishlist in which item is added."
+        ),
+        "product_id": fields.Integer(
+            required=True,
+            example=1,
+            description="The Unique ID of the product."
+        ),
+        "rank": fields.Integer(
+            required=True,
+            example=1,
+            description="Order in the wishlist."
+        ),
+        "quantity": fields.Integer(
+            required=True,
+            example=1,
+            description="Quantity of the item."
+        ),
+        "price": fields.Integer(
+            required=True,
+            example='$20',
+            description="Price of the item."
+        )
+    }
+)
+
+# query string arguments
+wishlist_args = reqparse.RequestParser()
+wishlist_args.add_argument('name', type=str, location='args', required=False, help='List wishlist by name')
+wishlist_args.add_argument('customer_id', type=str, location='args', required=False, help='List wishlists by customer id')
+
+item_args = reqparse.RequestParser()
+item_args.add_argument('name', type=str, required=False,
+                                help='List name of the item in the wishlist.')
+item_args.add_argument('product_id', type=int, required=False,
+                                help='List Wishlists Items by Product id')
+
+
+######################################################################
+# Authorization Decorator
+######################################################################
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'X-Api-Key' in request.headers:
+            token = request.headers['X-Api-Key']
+
+        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
+            return f(*args, **kwargs)
+        else:
+            return {'message': 'Invalid or missing token'}, 401
+    return decorated
 
 ######################################################################
 # CREATE A NEW WISHLIST
 ######################################################################
 @app.route("/wishlists", methods=["POST"])
+@api.doc('Create Wishlist')
+@api.expect(WISHLISTS_MODEL)
+@api.response(400, 'Errors: "Missing name" or \
+                  "Wrong customer_id. Number should be greater than 0."')
+@api.marshal_with(WISHLISTS_MODEL, code=201)
 def create_wishlists():
     """
     Creates a Wishlist
@@ -62,6 +177,10 @@ def create_wishlists():
 
 
 @app.route("/wishlists/<int:wishlist_id>", methods=["GET"])
+@api.doc('list_wishlist')
+@api.expect(wishlist_args)
+@api.response(404, 'No wishlist does not exist.')
+@api.marshal_list_with(WISHLISTS_MODEL)
 def get_wishlists(wishlist_id):
     """
     Retrieve a single wishlist
@@ -83,7 +202,6 @@ def get_wishlists(wishlist_id):
 def update_wishlist(wishlist_id):
     """Renames a wishlist to a name specified by the "name" field in the body
     of the request.
-
     Args:
         wishlist_id: The id of the wishlist to update.
     """
@@ -115,6 +233,10 @@ def update_wishlist(wishlist_id):
 # CREATE A NEW ITEM TO WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
+@api.doc('Create a New Item in Wishlist')
+@api.expect(Create_Wishlist_Item_Model)
+@api.response(404, 'Wishlist with id \'wishlist_id\' does not exist.')
+@api.marshal_list_with(Wishlist_Item_Model)
 def create_item(wishlist_id):
     """
     Adds Item to wishlist
@@ -140,6 +262,9 @@ def create_item(wishlist_id):
 # RETRIEVE A WISHLIST ITEM
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
+@api.expect(item_args)
+@api.response(404, 'Item not found in the list.')
+@api.marshal_list_with(Wishlist_Item_Model)
 def get_items(wishlist_id, item_id):
     """
     Retrieve a single wishlist
@@ -161,6 +286,8 @@ def get_items(wishlist_id, item_id):
 # LIST ALL ITEMS IN A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
+@api.response(404, 'Wishlist does not exist.')
+@api.marshal_list_with(ITEMS_MODEL)
 def list_items(wishlist_id):
     """
     Retrieve a single wishlist item
@@ -218,6 +345,7 @@ def list_all_wishlists():
 # LIST ALL WISHLISTS FOR A CUSTOMER
 ######################################################################
 @app.route("/wishlists/customer/<int:customer_id>", methods=["GET"])
+@api.response(404, 'Customer does not exist.')
 def list_wishlists(customer_id):
     """
     Retrieve a single wishlist
@@ -241,6 +369,7 @@ def list_wishlists(customer_id):
 # DELETE A WISHLIST
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
+@api.response(204, 'Wishlist Removed')
 def delete_wishlists(wishlist_id):
     """
     Delete a wishlist
@@ -258,7 +387,6 @@ def delete_wishlists(wishlist_id):
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
 def clear_wishlist(wishlist_id):
     """Clears a wishlist of all items
-
     Args:
         wishlist_id: The wishlist to clear.
     """
@@ -276,11 +404,12 @@ def clear_wishlist(wishlist_id):
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE A ITEM FROM WISHLIST
 ######################################################################
 
 # /wishlists/{id}/items/{id}
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
+@api.response(204, 'Item removed from wishlist.')
 def delete_items(wishlist_id, item_id):
     """
     Delete a item
@@ -299,6 +428,10 @@ def delete_items(wishlist_id, item_id):
 # UPDATE A PRODUCT IN A WISHLIST ITEM
 ######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
+@api.doc('Update an Item')
+@api.response(404, 'Wishlist or Item does not exist')
+@api.expect(Wishlist_Item_Model)
+@api.marshal_with(Wishlist_Item_Model)
 def update_item(wishlist_id, item_id):
     """Updates the name of an item in a wishlist."""
     app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
