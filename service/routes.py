@@ -48,7 +48,7 @@ WISHLISTS_MODEL = API.model(
     {
         "id": fields.Integer(
             required=True,
-            example=1
+            example=1,
             description="The unique ID given to a Wishlist."
         ),
         "name": fields.String(
@@ -61,7 +61,7 @@ WISHLISTS_MODEL = API.model(
             example=1,
             description="The Unique ID of the customer who has created the wishlist."
         )
-    },
+    }
 )
 
 Create_Wishlist_Item_Model = api.model('Create Wishlist Items', {
