@@ -86,7 +86,7 @@ ITEMS_MODEL = API.model(
     {
         "id": fields.Integer(
             required=True,
-            example=1
+            example=1,
             description="The unique ID given to an Item."
         ),
         "name": fields.String(
@@ -119,7 +119,7 @@ ITEMS_MODEL = API.model(
             example='$20',
             description="Price of the item."
         )
-    },
+    }
 )
 
 # query string arguments
