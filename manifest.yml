@@ -1,10 +1,10 @@
 applications:
-- name: lab-flask-bdd
+- name: wishlists
   path: .
   instances: 2
   memory: 64M
   disk_quota: 1024M
-  host: lab-flask-bdd
+  host: wishlists
   domain: mybluemix.net
   #command: gunicorn --bind 0.0.0.0:$PORT --log-level=info app:app
   buildpack: python_buildpack
