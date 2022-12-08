@@ -59,7 +59,7 @@ WISHLISTS_MODEL = API.model(
         "customer_id": fields.Integer(
             required=True,
             example=1,
-            description="The Unique ID of the customer who has created the wishlist.",
+            description="The Unique ID of the customer who has created the wishlist."
         )
     },
 )
