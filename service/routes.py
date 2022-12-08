@@ -43,7 +43,7 @@ def index():
 # CONFIGURING MODELS
 ######################################################################
 
-WISHLISTS_MODEL = API.model(
+WISHLISTS_MODEL = api.model(
     "WISHLISTS",
     {
         "id": fields.Integer(
@@ -81,7 +81,7 @@ Wishlist_Item_Model = api.model('Wishlist Product', {
 })
 
 
-ITEMS_MODEL = API.model(
+ITEMS_MODEL = api.model(
     "Items",
     {
         "id": fields.Integer(
