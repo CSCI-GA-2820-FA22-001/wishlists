@@ -49,7 +49,7 @@ WISHLISTS_MODEL = API.model(
         "id": fields.Integer(
             required=True,
             example=1
-            description="The unique ID given to a Wishlist.",
+            description="The unique ID given to a Wishlist."
         ),
         "name": fields.String(
             required=True,
@@ -117,7 +117,7 @@ ITEMS_MODEL = API.model(
         "price": fields.Integer(
             required=True,
             example='$20',
-            description="Price of the item.",
+            description="Price of the item."
         )
     },
 )
