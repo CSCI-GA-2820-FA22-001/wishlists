@@ -87,32 +87,32 @@ ITEMS_MODEL = API.model(
         "id": fields.Integer(
             required=True,
             example=1
-            description="The unique ID given to an Item.",
+            description="The unique ID given to an Item."
         ),
         "name": fields.String(
             required=True,
             example="EXAMPLE_ITEM",
-            description="The name of the item.",
+            description="The name of the item."
         ),
         "wishlist_id": fields.Integer(
             required=True,
             example=1,
-            description="The Unique ID of the wishlist in which item is added.",
+            description="The Unique ID of the wishlist in which item is added."
         ),
         "product_id": fields.Integer(
             required=True,
             example=1,
-            description="The Unique ID of the product.",
+            description="The Unique ID of the product."
         ),
         "rank": fields.Integer(
             required=True,
             example=1,
-            description="Order in the wishlist.",
+            description="Order in the wishlist."
         ),
         "quantity": fields.Integer(
             required=True,
             example=1,
-            description="Quantity of the item.",
+            description="Quantity of the item."
         ),
         "price": fields.Integer(
             required=True,
