@@ -72,13 +72,28 @@
               </div>
             </div>
 
-            <!-- ITEM ID -->
+            <!-- SUBMIT BUTTONS -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_id">Item ID:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_id" placeholder="Enter an Item ID">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
+                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
               </div>
             </div>
+
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="item_id" placeholder="Enter ID of Item">
+                </div>
+                <div class="col-sm-4">
+                  <button type="submit" class="btn btn-primary" id="retrieve-btn-item">Retrieve</button>
+                  <button type="submit" class="btn btn-danger" id="delete-btn-item">Delete</button>
+                </div>
+              </div>
+            </div> <!-- form horizontal -->
 
             <!-- ITEM Name -->
             <div class="form-group">
@@ -95,6 +110,7 @@
                 <input type="text" class="form-control" id="product_id" placeholder="Enter Product ID">
               </div>
             </div>
+
             <!-- ITEM quantity -->
             <div class="form-group">
               <label class="control-label col-sm-2" for="item_quantity">Item quantity:</label>
@@ -111,17 +127,32 @@
               </div>
             </div>
 
+            <!-- ITEM CREATED ON -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_created">Item Created On:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_created" placeholder="2020-04-01">
+              </div>
+            </div>
 
+            <!-- ITEM UPDATED ON -->
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="item_updated">Item Updated On:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_updated" placeholder="2020-04-01">
+              </div>
+            </div>
 
             <!-- SUBMIT BUTTONS -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="search-btn-item">Search</button>
                 <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
-                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
-                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                <button type="submit" class="btn btn-success" id="create-btn-item">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn-item">Update</button>
               </div>
             </div>
+
           </div> <!-- form horizontal -->
         </div> <!-- end well -->
       </div> <!-- end Form -->

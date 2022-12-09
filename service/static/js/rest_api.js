@@ -10,12 +10,19 @@ $(function () {
         $("#wishlist_name").val(res.name);
         $("#customer_id").val(res.customer_id);
         $("#wishlist_created").val(res.created_on);
-        if(res.items){
-            $("#item_list").val(res.items);
-        } else{
-            $("#item_list").val("No items in wishlist");
-        }
-        
+        $("#item_list").val(res.items);
+    }
+
+    // Updates the form with data from the Item response
+    function update_form_data_item(res) {
+        $("#wishlist_id").val(res.wishlist_id);
+        $("#item_id").val(res.id);
+        $("#item_name").val(res.name);
+        $("#product_id").val(res.product_id);
+        $("#item_quantity").val(res.quantity);
+        $("#item_price").val(res.price);    
+        $("#item_created").val(res.created_on);
+        $("#item_updated").val(res.updated_on);
     }
 
     /// Clears all form fields
@@ -27,6 +34,8 @@ $(function () {
         $("#wishlist_created").val("");
         $("#item_id").val("");
         $("#item_name").val("");
+        $("#item_created").val("");
+        $("#item_updated").val("");
         $("#product_id").val("");
         $("#item_quantity").val("");
         $("#item_price").val("");
@@ -151,6 +160,13 @@ $(function () {
 
         $("#flash_message").empty();
 
+        $.ajax({
+            type: "DELETE",
+            url: `/wishlists/${wishlist_id}/items`,
+            contentType: "application/json",
+            data: '',
+        })
+
         let ajax = $.ajax({
             type: "DELETE",
             url: `/wishlists/${wishlist_id}`,
@@ -174,12 +190,12 @@ $(function () {
 
     $("#clear-btn").click(function () {
         $("#wishlist_id").val("");
+        $("#item_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
 
 
-    // redundnat search for wishlist, implement search for item
     // ****************************************
     // Search for a Wishlist
     // ****************************************
@@ -245,6 +261,120 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
 
+    });
+
+    // ****************************************
+    // Add Item to a Wishlist
+    // ****************************************
+
+    $("#create-btn-item").click(function () {
+
+        let id = $("#item_id").val();
+        let wishlist_id = $("#wishlist_id").val();
+        let name = $("#item_name").val();
+        let product_id = $("#product_id").val();
+        let item_quantity;
+        if( ($("#item_quantity").val()) == ""){
+            item_quantity = 1;
+        } else{
+            item_quantity = $("#item_quantity").val();
+        }
+        let item_price;
+        if( ($("#item_price").val()) == ""){
+            item_price = 100;
+        } else{
+            item_price = $("#item_price").val();
+        }
+        
+        let created_on = new Date();
+
+        let data = {
+            "name": name,
+            "product_id": parseInt(product_id),
+            "quantity": parseInt(item_quantity),
+            "price": parseInt(item_price),
+            "created_on": created_on,
+            "updated_on": created_on
+        };
+
+        $("#flash_message").empty();
+        
+        let ajax = $.ajax({
+            type: "POST",
+            url: `/wishlists/${wishlist_id}/items`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+        });
+
+        ajax.done(function(res){
+            update_form_data_item(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
+    // Retrieve an Item
+    // ****************************************
+
+    $("#retrieve-btn-item").click(function () {
+
+        let item_id = $("#item_id").val();
+        // doesn't matter
+        let wishlist_id = 1;
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/wishlists/${item_id}/items/${item_id}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            update_form_data_item(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
+    // ****************************************
+    // Delete an Item
+    // ****************************************
+
+    $("#delete-btn-item").click(function () {
+
+        let item_id = $("#item_id").val();
+        // doesn't matter
+        let wishlist_id = 1;
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/wishlists/${item_id}/items/${item_id}`,
+            contentType: "application/json",
+            data: '',
+        })
+
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Item has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message("Server error!")
+        });
     });
 
 })
