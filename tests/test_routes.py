@@ -194,7 +194,6 @@ class TestWishlistsService(TestCase):
         ids = [w["id"] for w in test_wishlists]
 
         response = self.client.get(f"{BASE_URL}")
-        print(response)
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp_wishlists), len(test_wishlists))
@@ -207,8 +206,8 @@ class TestWishlistsService(TestCase):
         test_wishlists = self._create_wishlists_by_customer(5, customer_id)
 
         ids = [w["id"] for w in test_wishlists]
-        response = self.client.get(f"{BASE_URL}", json={"customer_id": customer_id})
-
+        response = self.client.get(f"{BASE_URL}?customer_id={test_wishlists[0]['customer_id']}")
+        
         resp_wishlists = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp_wishlists), len(test_wishlists))
@@ -227,6 +226,20 @@ class TestWishlistsService(TestCase):
         self.assertEqual(result["id"], test_wishlist["id"])
         self.assertEqual(result["name"], test_wishlist["name"])
         self.assertEqual(result["customer_id"], test_wishlist["customer_id"])
+
+    def test_get_wishlist_name(self):
+        """It should get a wishlist by name."""
+        test_wishlist = self._create_wishlists(2)[0]
+        resp = self.client.get(f'{BASE_URL}?name={test_wishlist["name"]}')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        result = resp.get_json()
+        self.assertEqual(len(result),1)
+        self.assertEqual(result[0]["id"], test_wishlist["id"])
+        self.assertEqual(result[0]["name"], test_wishlist["name"])
+        self.assertEqual(result[0]["customer_id"], test_wishlist["customer_id"])
+    
     def test_get_wishlist_not_found(self):
         """It should not retrieve a wishlist"""
         test_wishlist = WishlistsFactory()
@@ -239,7 +252,6 @@ class TestWishlistsService(TestCase):
         # Checking the name and id of the Wishlist
         new_wishlist = response.get_json()
         self.assertIn("was not found.", new_wishlist["message"])
-
 
 ######################################################################
 #  T E S T   ITEMS   S E R V I C E

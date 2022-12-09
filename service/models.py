@@ -155,15 +155,6 @@ class Wishlists(db.Model):
         """Disconnects the DB."""
         db.session.remove()
 
-    @classmethod
-    def find_by_dict(cls, query_dict):
-        """Finds a wishlist by a query dict where every key is an attribute."""
-        queries = []
-        for k, v in query_dict.items():
-            queries.append(getattr(cls, k) == v)
-            print(v)
-        return cls.query.filter(*queries)
-
 
 class Items(db.Model):
     """
