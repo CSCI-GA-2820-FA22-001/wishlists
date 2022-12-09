@@ -10,16 +10,21 @@ $(function () {
         $("#wishlist_name").val(res.name);
         $("#customer_id").val(res.customer_id);
         $("#wishlist_created").val(res.created_on);
-        $("#item_list").val("Will List items here");
+        if(res.items){
+            $("#item_list").val(res.items);
+        } else{
+            $("#item_list").val("No items in wishlist");
+        }
+        
     }
 
     /// Clears all form fields
     function clear_form_data() {
         $("#wishlist_name").val("");
         $("#wishlist_id").val("");
-        $("customer_id").val("");
-        $("item_list").val("");
-        $("#created_on").val("");
+        $("#customer_id").val("");
+        $("#item_list").val("");
+        $("#wishlist_created").val("");
         $("#item_id").val("");
         $("#item_name").val("");
         $("#product_id").val("");
@@ -79,7 +84,7 @@ $(function () {
 
         let wishlist_id = $("#wishlist_id").val();
         let name = $("#wishlist_name").val();
-        // Update is only renaming a wishlist
+        // Update is only renaming a wishlist, since you cant change items between different customers
         // let customer_id = $("#customer_id").val();
 
         let data = {
@@ -148,7 +153,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlist/${wishlist_id}`,
+            url: `/wishlists/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -173,6 +178,8 @@ $(function () {
         clear_form_data()
     });
 
+
+    // redundnat search for wishlist, implement search for item
     // ****************************************
     // Search for a Wishlist
     // ****************************************
@@ -190,7 +197,7 @@ $(function () {
         }
         else if (customer_id){
             
-            queryString += 'category=' + category
+            queryString += 'customer_id=' + customer_id
             get_url = `/wishlists?${queryString}`
         }
         else {
