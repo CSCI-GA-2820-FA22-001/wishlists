@@ -249,6 +249,12 @@ def delete_wishlists(wishlist_id):
     app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
     wishlist = Wishlists.find(wishlist_id)
     if wishlist:
+        while wishlist.items:
+            item = wishlist.items[0]
+            wishlist.items.remove(item)
+            item.delete()
+
+    if wishlist:
         wishlist.delete()
 
     app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
@@ -271,7 +277,7 @@ def clear_wishlist(wishlist_id):
             wishlist.items.remove(item)
             item.delete()
 
-    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
+    app.logger.info("Wishlist with ID [%s] clear complete.", wishlist_id)
     return "", status.HTTP_204_NO_CONTENT
 
 
