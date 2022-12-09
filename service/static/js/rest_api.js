@@ -6,22 +6,19 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#pet_id").val(res.id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
-        if (res.available == true) {
-            $("#pet_available").val("true");
-        } else {
-            $("#pet_available").val("false");
-        }
-        $("#pet_gender").val(res.gender);
-        $("#pet_birthday").val(res.birthday);
+        $("#wishlist_id").val(res.id);
+        $("#wishlist_name").val(res.name);
+        $("#customer_id").val(res.customer_id);
+        $("#wishlist_created").val(res.created_on);
+        $("#item_list").val("Will List items here");
     }
 
     /// Clears all form fields
     function clear_form_data() {
         $("#wishlist_name").val("");
         $("#wishlist_id").val("");
+        $("customer_id").val("");
+        $("item_list").val("");
         $("#created_on").val("");
         $("#item_id").val("");
         $("#item_name").val("");
@@ -45,21 +42,19 @@ $(function () {
         let id = $("#wishlist_id").val();
         let name = $("#wishlist_name").val();
         let customer_id = $("#customer_id").val();
-        let created_on = $("#created_on").val();
+        let created_on = new Date();
 
         let data = {
             "name": name,
-            "category": category,
-            "available": available,
-            "gender": gender,
-            "birthday": birthday
+            "customer_id": parseInt(customer_id),
+            "created_on": created_on
         };
 
         $("#flash_message").empty();
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/wishlists",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -76,31 +71,26 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Wishlist
     // ****************************************
 
     $("#update-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
-        let name = $("#pet_name").val();
-        let category = $("#pet_category").val();
-        let available = $("#pet_available").val() == "true";
-        let gender = $("#pet_gender").val();
-        let birthday = $("#pet_birthday").val();
+
+        let wishlist_id = $("#wishlist_id").val();
+        let name = $("#wishlist_name").val();
+        // Update is only renaming a wishlist
+        // let customer_id = $("#customer_id").val();
 
         let data = {
             "name": name,
-            "category": category,
-            "available": available,
-            "gender": gender,
-            "birthday": birthday
         };
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/pets/${pet_id}`,
+                url: `/wishlists/${wishlist_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -117,18 +107,18 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Wishlist
     // ****************************************
 
     $("#retrieve-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
+        let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/pets/${pet_id}`,
+            url: `/wishlists/${wishlist_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -147,25 +137,25 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a Wishlist
     // ****************************************
 
     $("#delete-btn").click(function () {
 
-        let pet_id = $("#pet_id").val();
+        let wishlist_id = $("#wishlist_id").val();
 
         $("#flash_message").empty();
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/pets/${pet_id}`,
+            url: `/wishlist/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet has been Deleted!")
+            flash_message("Wishlist has been Deleted!")
         });
 
         ajax.fail(function(res){
@@ -178,7 +168,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
+        $("#wishlist_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
@@ -190,8 +180,8 @@ $(function () {
     $("#search-btn").click(function () {
 
         let id = $("#wishlist_id").val();
+        // Customer ID will be empty, since wishlist_id is unique for any wishlist
         let customer_id = $("#customer_id").val();
-        let available = $("#pet_available").val() == "true";
 
         let queryString = ""
         

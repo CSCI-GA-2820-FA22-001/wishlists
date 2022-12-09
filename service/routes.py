@@ -276,7 +276,7 @@ def clear_wishlist(wishlist_id):
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE A WISHLIST ITEM
 ######################################################################
 
 # /wishlists/{id}/items/{id}
