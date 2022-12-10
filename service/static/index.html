@@ -56,14 +56,6 @@
               </div>
             </div>
 
-            <!-- ITEM LIST -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="item_list">Item List:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_list" placeholder="Will list items in wishlist when retrieved">
-              </div>
-            </div>
-
             <!-- CREATED ON -->
             <div class="form-group">
               <label class="control-label col-sm-2" for="wishlist_created">Wishlist Created On:</label>
@@ -76,10 +68,23 @@
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
-                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
                 <button type="submit" class="btn btn-success" id="create-btn">Create</button>
                 <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
               </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="table-responsive col-md-12" id="search_results">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th class="col-md-1">Wishlist ID</th>
+                  <th class="col-md-4">Name</th>
+                  <th class="col-md-4">Customer ID</th>
+                  <th class="col-md-3">Created On</th>
+                </tr>
+                </thead>
+              </table>
             </div>
 
             <div class="form-horizontal">
@@ -135,14 +140,6 @@
               </div>
             </div>
 
-            <!-- ITEM UPDATED ON -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="item_updated">Item Updated On:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_updated" placeholder="2020-04-01">
-              </div>
-            </div>
-
             <!-- SUBMIT BUTTONS -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
@@ -153,23 +150,25 @@
               </div>
             </div>
 
+            <!-- Search Results -->
+            <div class="table-responsive col-md-12" id="search_results_item">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th class="col-md-1">Item ID</th>
+                  <th class="col-md-3">Name</th>
+                  <th class="col-md-1">Product ID</th>
+                  <th class="col-md-1">Quantity</th>
+                  <th class="col-md-2">Price</th>
+                  <th class="col-md-5">Created On</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+
           </div> <!-- form horizontal -->
         </div> <!-- end well -->
       </div> <!-- end Form -->
-
-      <!-- Search Results -->
-      <div class="table-responsive col-md-12" id="search_results">
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <th class="col-md-1">ID</th>
-            <th class="col-md-4">Name</th>
-            <th class="col-md-4">Customer ID</th>
-            <th class="col-md-3">Created On</th>
-          </tr>
-          </thead>
-        </table>
-      </div>
 
       <footer>
         <br><br>

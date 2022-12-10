@@ -322,10 +322,12 @@ def update_item(wishlist_id, item_id):
     app.logger.info("Request body=%s", body)
 
     new_name = body.get("product_name", None)
+    new_qty = body.get("quantity", None)
     if not new_name:
         abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
 
     wishlist_product.name = new_name
+    wishlist_product.quantity = new_qty
     wishlist_product.update()
 
     return {}, status.HTTP_202_ACCEPTED
