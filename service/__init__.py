@@ -36,6 +36,7 @@ app = Flask(__name__)  # pylint: disable=invalid-name
 # Load Configurations
 app.config.from_object(config)
 
+
 # Dependencies require we import the routes AFTER the Flask app is created
 # pylint: disable=wrong-import-position, wrong-import-order, cyclic-import
 from service import routes, models        # noqa: F401, E402
@@ -54,5 +55,6 @@ except Exception as error:  # pylint: disable=broad-except
     app.logger.critical("%s: Cannot continue", error)
     # gunicorn requires exit code 4 to stop spawning workers when they die
     sys.exit(4)
+
 
 app.logger.info("Service initialized!")

@@ -20,8 +20,6 @@ def init_db(app):
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
-    pass
-
 
 class Wishlists(db.Model):
     """
@@ -69,7 +67,7 @@ class Wishlists(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "customer_id": self.customer_id,
+            "customer_id": int(self.customer_id),
             "created_on": self.created_on,
         }
 
@@ -85,19 +83,22 @@ class Wishlists(db.Model):
             if isinstance(data["customer_id"], int):
                 self.customer_id = data["customer_id"]
             else:
-                raise DataValidationError(
-                    "Invalid type for integer [customer_id]: "
-                    + str(type(data["customer_id"]))
-                )
+                try:
+                    self.customer_id = int(data["customer_id"])
+                except ValueError as error:
+                    raise DataValidationError(
+                        "Invalid type for integer [customer_id]: "
+                        + str(type(data["customer_id"]))
+                    ) from error
         except KeyError as error:
             raise DataValidationError(
                 "Invalid Wishlist : missing " + str(error.args[0])
-            )
+            ) from error
         except TypeError as error:
             raise DataValidationError(
                 "Invalid Wishlist: body of request contained bad or no data - "
                 "Error message: " + str(error)
-            )
+            ) from error
         return self
 
     @classmethod
@@ -151,6 +152,11 @@ class Wishlists(db.Model):
             raise NotFound("Wishlist not found id : " + str(by_id))
         return wishlist
 
+    @classmethod
+    def disconnect_db(cls):
+        """Disconnects the DB."""
+        db.session.remove()
+
 
 class Items(db.Model):
     """
@@ -161,8 +167,10 @@ class Items(db.Model):
 
     # Table Schema
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(63), nullable=False)   
-    wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlists.id', ondelete="CASCADE"), nullable=False)
+    name = db.Column(db.String(63), nullable=False)
+    wishlist_id = db.Column(
+        db.Integer, db.ForeignKey("wishlists.id", ondelete="CASCADE"), nullable=False
+    )
     product_id = db.Column(db.Integer, nullable=False)
     rank = db.Column(db.Integer, nullable=False, default=0)
     quantity = db.Column(db.Integer, nullable=False, default=1)
@@ -308,6 +316,11 @@ class Items(db.Model):
         db.init_app(app)
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
+
+    @classmethod
+    def disconnect_db(cls):
+        """Disconnects the DB."""
+        db.session.remove()
 
     @classmethod
     def all(cls):
