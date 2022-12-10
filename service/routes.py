@@ -53,7 +53,7 @@ API = Api(
     description="Wishlist server for an e-commerce site",
     default="Wishlists",
     default_label="Wishlist-Operations",
-    doc="/apidocs/index.html",
+    doc="/apidocs",
     prefix="/api",
 )
 
