@@ -327,7 +327,9 @@ def update_item(wishlist_id, item_id):
         abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
 
     wishlist_product.name = new_name
-    wishlist_product.quantity = new_qty
+    if(new_qty):
+         wishlist_product.quantity = new_qty
+   
     wishlist_product.update()
 
     return {}, status.HTTP_202_ACCEPTED
