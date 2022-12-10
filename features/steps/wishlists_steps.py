@@ -27,9 +27,9 @@ from behave import given
 from compare import expect
 
 
-@given('the following pets')
+@given("the following pets")
 def step_impl(context):
-    """ Delete all Pets and load new ones """
+    """Delete all Pets and load new ones"""
     # List all of the pets and delete them one by one
     rest_endpoint = f"{context.BASE_URL}/pets"
     context.resp = requests.get(rest_endpoint)
@@ -41,11 +41,11 @@ def step_impl(context):
     # load the database with new pets
     for row in context.table:
         payload = {
-            "name": row['name'],
-            "category": row['category'],
-            "available": row['available'] in ['True', 'true', '1'],
-            "gender": row['gender'],
-            "birthday": row['birthday']
+            "name": row["name"],
+            "category": row["category"],
+            "available": row["available"] in ["True", "true", "1"],
+            "gender": row["gender"],
+            "birthday": row["birthday"],
         }
         context.resp = requests.post(rest_endpoint, json=payload)
         expect(context.resp.status_code).to_equal(201)
