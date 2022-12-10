@@ -120,8 +120,7 @@ class TestWishlistsService(TestCase):
         """It should call the Home Page"""
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        self.assertEqual(data["name"], "Wishlists Demo REST API Service")
+        self.assertIn(b"Wishlists Demo REST API Service", response.data)
 
     def test_health(self):
         """It should be healthy"""
@@ -358,8 +357,7 @@ class TestItemsService(TestCase):
         """It should call the Home Page"""
         response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        self.assertEqual(data["name"], "Wishlists Demo REST API Service")
+        self.assertIn(b"Wishlists Demo REST API Service", response.data)
 
     def test_health(self):
         """It should be healthy"""

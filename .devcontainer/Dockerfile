@@ -1,7 +1,7 @@
-# Image for a Python 3 development environment
-FROM python:3.9-slim
+# This image has selenium and chrome driver already installed
+FROM rofrano/pipeline-selenium:latest
 
-# Add any tools that are needed beyond Python 3
+# Add any tools that are needed beyond Python 3.9
 RUN apt-get update && \
     apt-get install -y sudo vim make git zip tree curl wget jq && \
     apt-get autoremove -y && \
@@ -20,13 +20,14 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Added libraries for PostgreSQL
-RUN apt-get install -y gcc libpq-dev
+RUN apt-get update && apt-get install -y gcc libpq-dev
 
 # Set up the Python development environment
 WORKDIR /app
 RUN python -m pip install --upgrade pip wheel
 
-EXPOSE 8080
+ENV PORT 8080
+EXPOSE $PORT
 
 # Enable color terminal for docker exec bash
 ENV TERM=xterm-256color
