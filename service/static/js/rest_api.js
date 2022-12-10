@@ -22,6 +22,7 @@ $(function () {
     function clear_form_data() {
         $("#wishlist_name").val("");
         $("#wishlist_id").val("");
+        $("#customer_id").val("");
         $("#created_on").val("");
         $("#item_id").val("");
         $("#item_name").val("");
@@ -117,7 +118,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Wishlist
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -178,7 +179,6 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
         $("#flash_message").empty();
         clear_form_data()
     });
@@ -191,21 +191,20 @@ $(function () {
 
         let id = $("#wishlist_id").val();
         let customer_id = $("#customer_id").val();
-        let available = $("#pet_available").val() == "true";
-
-        let queryString = ""
-        
+        let queryString = "";
+        let message = "Success"
         if (id) {
            get_url = `/wishlists/${id}`
         }
         else if (customer_id){
             
-            queryString += 'category=' + category
+            queryString += 'customer_id=' + customer_id
             get_url = `/wishlists?${queryString}`
         }
         else {
             get_url = `/wishlists`
         }
+
         $("#flash_message").empty();
 
         let ajax = $.ajax({
@@ -216,7 +215,6 @@ $(function () {
         })
 
         ajax.done(function(res){
-            //alert(res.toSource())
             $("#search_results").empty();
             let table = '<table class="table table-striped" cellpadding="10">'
             table += '<thead><tr>'
@@ -226,25 +224,51 @@ $(function () {
             table += '<th class="col-md-2">Created On</th>'
             table += '</tr></thead><tbody>'
             let firstWList = "";
-            for(let i = 0; i < res.length; i++) {
-                let wishlist = res[i];
+            if (res.wishlists)
+            {
+            for(let i = 0; i < res.wishlists.length; i++) {
+                let wishlist = res.wishlists[i];
                 table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td><td>${wishlist.created_on}</td></tr>`;
                 if (i == 0) {
                     firstWList = wishlist;
                 }
             }
+            }
+            else if(res.message)
+            {
+               
+                
+                        message = res.message;
+                
+            }
+            else 
+            {
+            let i=0
+            let wishlist = res
+            table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td><td>${wishlist.created_on}</td></tr>`;
+              
+            }
             table += '</tbody></table>';
+
             $("#search_results").append(table);
+             //copy the first result to the form
+            if (firstWList != "") {
+                update_form_data(firstWList)
+            }
 
-            // copy the first result to the form
-            /*if (firstPet != "") {
-                update_form_data(firstPet)
-            }*/
-
-            flash_message("Success")
+            flash_message(message)
         });
 
         ajax.fail(function(res){
+            $("#search_results").empty()
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-2">ID</th>'
+            table += '<th class="col-md-2">Name</th>'
+            table += '<th class="col-md-2">Customer ID</th>'
+            table += '<th class="col-md-2">Created On</th>'
+            table += '</tr></thead><tbody></tbody></table>'
+            $("#search_results").append(table)
             flash_message(res.responseJSON.message)
         });
 
