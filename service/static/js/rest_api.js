@@ -38,7 +38,7 @@ $(function () {
         $("#item_quantity").val("");
         $("#item_price").val("");
         $("#search_results").empty();
-        $("#search_results_item").empty();
+        $("#search_item_results").empty();
     }
 
     // Updates the flash message area
@@ -275,7 +275,7 @@ $(function () {
     // Add Item to a Wishlist
     // ****************************************
 
-    $("#create-btn-item").click(function () {
+    $("#create-item-btn").click(function () {
 
         let id = $("#item_id").val();
         let wishlist_id = $("#wishlist_id").val();
@@ -326,7 +326,7 @@ $(function () {
     // Retrieve an Item
     // ****************************************
 
-    $("#retrieve-btn-item").click(function () {
+    $("#retrieve-item-btn").click(function () {
 
         let item_id = $("#item_id").val();
         // doesn't matter
@@ -358,7 +358,7 @@ $(function () {
     // Delete an Item
     // ****************************************
 
-    $("#delete-btn-item").click(function () {
+    $("#delete-item-btn").click(function () {
 
         let item_id = $("#item_id").val();
         // doesn't matter
@@ -387,7 +387,7 @@ $(function () {
     // Update a Wishlist Item
     // ****************************************
 
-    $("#update-btn-item").click(function () {
+    $("#update-item-btn").click(function () {
 
 
         let wishlist_id = $("#wishlist_id").val();
@@ -427,7 +427,7 @@ $(function () {
     // Search for a Wishlist Item
     // ****************************************
 
-    $("#search-btn-item").click(function () {
+    $("#search-item-btn").click(function () {
 
         let wishlist_id = $("#wishlist_id").val();
         let item_id = $("#item_id").val();
@@ -457,7 +457,7 @@ $(function () {
 
         ajax.done(function(res){
             //alert(res.toSource())
-            $("#search_results_item").empty();
+            $("#search_item_results").empty();
             let table = '<table class="table table-striped" cellpadding="10">'
             table += '<thead><tr>'
             table += '<th class="col-md-1">Item ID</th>'
@@ -487,7 +487,7 @@ $(function () {
             }
 
             table += '</tbody></table>';
-            $("#search_results_item").append(table);
+            $("#search_item_results").append(table);
 
             // copy the first result to the form
             if (firstIList != "") {
