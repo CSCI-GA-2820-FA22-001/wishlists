@@ -67,27 +67,27 @@ Scenario: Create a Wishlist
 #     And I should see "sammy" in the results
 #     And I should not see "leo" in the results
 
-# Scenario: Update a Pet
-#     When I visit the "Home Page"
-#     And I set the "Name" to "fido"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the "Name" field
-#     And I should see "dog" in the "Category" field
-#     When I change "Name" to "Boxer"
-#     And I press the "Update" button
-#     Then I should see the message "Success"
-#     When I copy the "Id" field
-#     And I press the "Clear" button
-#     And I paste the "Id" field
-#     And I press the "Retrieve" button
-#     Then I should see the message "Success"
-#     And I should see "Boxer" in the "Name" field
-#     When I press the "Clear" button
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "Boxer" in the results
-#     And I should not see "fido" in the results
+Scenario: Update a Wishlist
+    When I visit the "Home Page"
+    And I set the "Wishlist Name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1" in the "Wishlist Name" field
+    And I should see "3" in the "Customer Id" field
+    When I change "Wishlist Name" to "wish_1_rename"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    And I paste the "Wishlist Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "wish_1_rename" in the "Wishlist Name" field
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1_rename" in the results
+    And I should not see "wish_1" in the results
 
 # Scenario: Delete a Pet
 #     When I visit the "Home Page"
