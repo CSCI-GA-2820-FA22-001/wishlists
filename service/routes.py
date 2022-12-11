@@ -82,7 +82,7 @@ WISHLIST_MODEL = API.model(
     },
 )
 CREATE_WISHLIST_MODEL = API.model(
-    "Wishlist",
+    "Create Wishlist",
     {
         "name": fields.String(
             required=True,
@@ -97,6 +97,52 @@ CREATE_WISHLIST_MODEL = API.model(
         ),
     },
 )
+
+
+ITEM_MODEL = API.model(
+    "Wishlist Item",
+    {
+        "id": fields.Integer(
+            readOnly=True,
+            required=True,
+            example=1,
+            description="The unique ID given to an item.",
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_ITEM",
+            description="The name of the item",
+        ),
+        "wishlist_id": fields.String(
+            required=True,
+            min=1,
+            example=1,
+            description="The Unique ID of the wishlist for the item",
+        ),
+        "product_id": fields.Integer(
+            readOnly=True,
+            example=1,
+            description="The product id of an item",
+        ),
+    },
+)
+CREATE_ITEM_MODEL = API.model(
+    "Create Wishlist Item",
+    {
+        "id": fields.Integer(
+            readOnly=True,
+            required=True,
+            example=1,
+            description="The unique ID given to an item.",
+        ),
+        "name": fields.String(
+            required=True,
+            example="EXAMPLE_ITEM",
+            description="The name of the item",
+        ),
+    },
+)
+
 
 ######################################################################
 # Query Parsers
@@ -113,6 +159,13 @@ WISHLIST_QUERY_PARSER.add_argument(
     "customer_id", type=int, required=False, help="The customer ID of the wishlist."
 )
 
+ITEM_QUERY_PARSER = WISHLIST_QUERY_PARSER = reqparse.RequestParser()
+ITEM_QUERY_PARSER.add_argument(
+    "id", type=int, required=False, help="The ID of the item"
+)
+ITEM_QUERY_PARSER.add_argument(
+    "name", type=str, required=False, help="The Name of the item."
+)
 ######################################################################
 # GET HEALTH CHECK
 ######################################################################
@@ -126,19 +179,12 @@ def healthcheck():
 # GET INDEX
 ######################################################################
 
+
 @app.route("/")
 def index():
     """Root URL response"""
     app.logger.info("Request for Root URL")
     return app.send_static_file("index.html")
-    #return (
-     #   jsonify(
-      #      name="Wishlists Demo REST API Service",
-        #    version="1.0",
-       #     paths=url_for("create_wishlists", _external=True),
-        #),
-        #status.HTTP_200_OK,
-    #)
 
 
 ######################################################################
@@ -245,14 +291,14 @@ class WishlistCollection(Resource):
 
     @API.doc("list_wishlists")
     @API.marshal_list_with(WISHLIST_MODEL)
-    @API.expect(WISHLIST_QUERY_PARSER,validate=True)
+    @API.expect(WISHLIST_QUERY_PARSER, validate=True)
     def get(self):
         """Lists the wishlists."""
         app.logger.info("Request to list wishlist...")
-        
-        wishlist_id = request.args.get('id')
-        customer_id = request.args.get('customer_id')
-        name = request.args.get('name')
+
+        wishlist_id = request.args.get("id")
+        customer_id = request.args.get("customer_id")
+        name = request.args.get("name")
         wishlists = []
         if customer_id:
             wishlists = Wishlists.find_by_customer_id(customer_id)
@@ -268,202 +314,148 @@ class WishlistCollection(Resource):
 
 
 ######################################################################
-# CREATE A NEW ITEM TO WISHLIST
+# Item handling
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items", methods=["POST"])
-def create_item(wishlist_id):
-    """
-    Adds Item to wishlist
-    This endpoint will add an item to wishlist based the data in the body that is posted
-    """
-    app.logger.info("Request to create a new item in a wishlist")
-    check_content_type("application/json")
-    item = Items()
-    data = request.get_json()
-    data["wishlist_id"] = wishlist_id
-    item.deserialize(data)
-    item.create()
-    message = item.serialize()
-    location_url = url_for(
-        "get_items", wishlist_id=wishlist_id, item_id=item.id, _external=True
-    )
-
-    app.logger.info("Wishlist Item with ID [%s] created.", item.id)
-    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
-######################################################################
-# RETRIEVE A WISHLIST ITEM
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["GET"])
-def get_items(wishlist_id, item_id):
-    """
-    Retrieve a single wishlist
-    This endpoint will return a wishlist based on it's id
-    """
-    app.logger.info("Request for items with id: %s", str(item_id))
-    item = Items.find(item_id)
-    if not item:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Wishlist Item with id '{item_id}' was not found.",
+@API.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", strict_slashes=False)
+@API.param("wishlist_id", "The wishlist ID")
+@API.param("item_id", "The item ID")
+class ItemResource(Resource):
+    """Class to handle items."""
+
+    @API.doc("get_wishlist_item")
+    @API.response(404, "No item found in wishlist")
+    @API.marshal_with(ITEM_MODEL)
+    def get(self, wishlist_id, item_id):
+        """
+        Retrieve a single wishlist
+        This endpoint will return a wishlist based on it's id
+        """
+        app.logger.info(
+            "Request for items with id: %s from wishlist %s", item_id, wishlist_id
         )
 
-    app.logger.info("Returning wishlist item: %s", item.name)
-    return jsonify(item.serialize()), status.HTTP_200_OK
+        item = Items.find(item_id)
+        if not item:
+            abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Wishlist Item with id '{item_id}' was not found.",
+            )
 
+        app.logger.info("Returning wishlist item: %s", item.name)
+        return item.serialize(), status.HTTP_200_OK
 
-######################################################################
-# LIST ALL ITEMS IN A WISHLIST
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items", methods=["GET"])
-def list_items(wishlist_id):
-    """
-    Retrieve a single wishlist item
-    This endpoint will return a wishlist based on it's id
-    """
-    app.logger.info("Request for items in wishlist: %s", str(wishlist_id))
-    items = Items.find_by_wishlist_id(wishlist_id)
-    items_serialized = [i.serialize() for i in items]
-    app.logger.info(items_serialized)
-    if len(items_serialized) == 0:
-        return {
-            "message": "No items found for this wishlist - " + str(wishlist_id)
-        }, status.HTTP_200_OK
-
-    app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
-    return jsonify({"items": items_serialized}), status.HTTP_200_OK
-
-
-######################################################################
-# LIST ALL THE WISHLISTS / FOR A CUSTOMER
-######################################################################
-@app.route("/wishlists", methods=["GET"])
-def list_all_wishlists():
-    """
-    Retrieve all wishlists
-    This endpoint will return all wishlists
-    """
-
-    if request.args:
-        args = request.args
-        customer_id = args.get("customer_id", type=int)
-        app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
-        wishlists = Wishlists.find_by_customer_id(customer_id)
-        wishlists_serialized = [w.serialize() for w in wishlists]
-        app.logger.info(wishlists_serialized)
-        if len(wishlists_serialized) == 0:
-            return {
-                "message": "No wishlists found for the customer id - "
-                + str(customer_id)
-            }, status.HTTP_200_OK
-        # app.logger.info("Returning wishlist:", wishlists)
-        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
-    else:
-        app.logger.info("Request for all wishlists")
-        wishlists = Wishlists.all()
-
-        wishlists_serialized = [w.serialize() for w in wishlists]
-        app.logger.info(wishlists_serialized)
-        if len(wishlists_serialized) == 0:
-            return {"message": "No wishlists found"}, status.HTTP_200_OK
-        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
-
-
-######################################################################
-# LIST ALL WISHLISTS FOR A CUSTOMER
-######################################################################
-@app.route("/wishlists/customer/<int:customer_id>", methods=["GET"])
-def list_wishlists(customer_id):
-    """
-    Retrieve a single wishlist
-    This endpoint will return a wishlist based on it's id
-    """
-    app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
-    wishlists = Wishlists.find_by_customer_id(customer_id)
-
-    wishlists_serialized = [w.serialize() for w in wishlists]
-    app.logger.info(wishlists_serialized)
-    if len(wishlists_serialized) == 0:
-        return {
-            "message": "No wishlists found for this customer - " + str(customer_id)
-        }, status.HTTP_200_OK
-    # app.logger.info("Returning wishlist:", wishlists)
-    return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
-    # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
-
-
-######################################################################
-# CLEAR A WISHLIST
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
-def clear_wishlist(wishlist_id):
-    """Clears a wishlist of all items
-
-    Args:
-        wishlist_id: The wishlist to clear.
-    """
-    app.logger.info("Request to clear wishlist with id: %s", wishlist_id)
-    wishlist = Wishlists.find(wishlist_id)
-
-    if wishlist:
-        while wishlist.items:
-            item = wishlist.items[0]
-            wishlist.items.remove(item)
+    @API.doc("delete_item")
+    @API.response(204, "Item Deleted")
+    def delete(self, wishlist_id, item_id):
+        """
+        Delete a item
+        This endpoint will delete a item based the id specified in the path
+        """
+        _ = wishlist_id
+        app.logger.info("Request to delete item with id: %s", item_id)
+        item = Items.find(item_id)
+        if item:
             item.delete()
 
-    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
-    return "", status.HTTP_204_NO_CONTENT
+        app.logger.info("Item with ID [%s] delete complete.", item_id)
+        return "", status.HTTP_204_NO_CONTENT
+
+    @API.doc("update_item")
+    @API.expect(ITEM_QUERY_PARSER, validate=True)
+    def put(self, wishlist_id, item_id):
+
+        """Updates the name of an item in a wishlist."""
+
+        app.logger.info(
+            "Request to update product %d in wishlist %d", wishlist_id, item_id
+        )
+        wishlist = Wishlists.find(wishlist_id)
+
+        if not wishlist:
+            abort(status.HTTP_404_NOT_FOUND, f"Wishlist {wishlist_id} not found")
+
+        wishlist_product = Items.find(item_id)
+
+        if not wishlist_product:
+            abort(
+                status.HTTP_404_NOT_FOUND, f"Item {item_id} not found in {wishlist_id}"
+            )
+
+        body = request.get_json()
+        app.logger.info("Request body=%s", body)
+
+        new_name = body.get("product_name", None)
+        if not new_name:
+            abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
+
+        wishlist_product.name = new_name
+        wishlist_product.update()
+
+        return {}, status.HTTP_202_ACCEPTED
 
 
-######################################################################
-# DELETE A WISHLIST ITEM
-######################################################################
+@API.route("/wishlists/<int:wishlist_id>/items", strict_slashes=False)
+@API.param("wishlist_id", "The wishlist ID")
+class ItemCollectionResource(Resource):
+    """Class for handling collection of items."""
 
-# /wishlists/{id}/items/{id}
-@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["DELETE"])
-def delete_items(wishlist_id, item_id):
-    """
-    Delete a item
-    This endpoint will delete a item based the id specified in the path
-    """
-    app.logger.info("Request to delete item with id: %s", item_id)
-    item = Items.find(item_id)
-    if item:
-        item.delete()
+    @API.doc("create_item")
+    @API.expect(CREATE_ITEM_MODEL)
+    @API.response(400, "ValueErrors: Missing either a name or a valid wishlist id.")
+    @API.marshal_with(ITEM_MODEL)
+    def post(self, wishlist_id):
+        """
+        Adds Item to wishlist
+        This endpoint will add an item to wishlist based the data in the body that is posted
+        """
+        app.logger.info("Request to create a new item in a wishlist")
+        check_content_type("application/json")
+        data = request.get_json()
+        item = Items()
+        data["wishlist_id"] = wishlist_id
 
-    app.logger.info("Item with ID [%s] delete complete.", item_id)
-    return "", status.HTTP_204_NO_CONTENT
+        item.deserialize(data)
+        item.create()
 
+        location_url = f"{request.base_url}/wishlists/{wishlist_id}/items/{item.id}"
+        app.logger.info("Wishlist Item with ID [%s] created.", item.id)
+        return item.serialize(), status.HTTP_201_CREATED, {"location": location_url}
 
-######################################################################
-# UPDATE A PRODUCT IN A WISHLIST ITEM
-######################################################################
-@app.route("/wishlists/<int:wishlist_id>/items/<int:item_id>", methods=["PUT"])
-def update_item(wishlist_id, item_id):
-    """Updates the name of an item in a wishlist."""
-    app.logger.info("Request to update product %d in wishlist %d", wishlist_id, item_id)
-    wishlist = Wishlists.find(wishlist_id)
+    @API.doc("list_wishlist_items")
+    @API.expect(ITEM_QUERY_PARSER, validate=True)
+    @API.response(404, "No wishlist found.")
+    @API.marshal_list_with(ITEM_MODEL)
+    def get(self, wishlist_id):
+        """Gets items from a wishlist."""
+        app.logger.info("Request for items in wishlist: %s", str(wishlist_id))
+        items = Items.find_by_wishlist_id(wishlist_id)
+        items_serialized = [i.serialize() for i in items]
+        app.logger.info(items_serialized)
+        if len(items_serialized) == 0:
+            return {
+                "message": "No items found for this wishlist - " + str(wishlist_id)
+            }, status.HTTP_200_OK
 
-    if not wishlist:
-        abort(status.HTTP_404_NOT_FOUND, f"Wishlist {wishlist_id} not found")
+        app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
+        return items_serialized, status.HTTP_200_OK
 
-    wishlist_product = Items.find(item_id)
+    @API.doc("clear_wishlist")
+    @API.response(404, "No wishlist found.")
+    def delete(self, wishlist_id):
+        """Deletes items from a wishlist."""
+        app.logger.info("Request to clear wishlist with id: %s", wishlist_id)
+        wishlist = Wishlists.find(wishlist_id)
 
-    if not wishlist_product:
-        abort(status.HTTP_404_NOT_FOUND, f"Item {item_id} not found in {wishlist_id}")
+        if wishlist:
+            while wishlist.items:
+                item = wishlist.items[0]
+                wishlist.items.remove(item)
+                item.delete()
 
-    body = request.get_json()
-    app.logger.info("Request body=%s", body)
-
-    new_name = body.get("product_name", None)
-    if not new_name:
-        abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
-
-    wishlist_product.name = new_name
-    wishlist_product.update()
-
-    return {}, status.HTTP_202_ACCEPTED
+        app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
+        return "", status.HTTP_204_NO_CONTENT
 
 
 ######################################################################

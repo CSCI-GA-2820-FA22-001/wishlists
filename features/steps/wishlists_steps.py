@@ -27,6 +27,7 @@ from behave import given
 from compare import expect
 
 
+
 @given('the following wishlists')
 def step_impl(context):
     """ Delete all Wishlists and load new ones """

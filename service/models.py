@@ -14,9 +14,12 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Wishlists.init_db(app)
+
+
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
@@ -284,7 +287,7 @@ class Items(db.Model):
         try:
             self.name = data["name"]
 
-            # self.product_id = data["product_id"]
+            self.product_id = data.get("product_id")
             # self.wishlist_id = data["wishlist_id"]
             # self.rank = data["rank"]
             # self.price = data["price"]
