@@ -15,9 +15,9 @@
 ######################################################################
 
 """
-Pet Steps
+Wishlist Steps
 
-Steps file for Pet.feature
+Steps file for Wishlists.feature
 
 For information on Waiting until elements are present in the HTML see:
     https://selenium-python.readthedocs.io/waits.html
@@ -27,25 +27,48 @@ from behave import given
 from compare import expect
 
 
-@given("the following pets")
+
+@given('the following wishlists')
 def step_impl(context):
-    """Delete all Pets and load new ones"""
-    # List all of the pets and delete them one by one
-    rest_endpoint = f"{context.BASE_URL}/pets"
+    """ Delete all Wishlists and load new ones """
+    # List all of the wishlists and delete them one by one
+    rest_endpoint = f"{context.BASE_URL}/api/wishlists"
     context.resp = requests.get(rest_endpoint)
     expect(context.resp.status_code).to_equal(200)
-    for pet in context.resp.json():
-        context.resp = requests.delete(f"{rest_endpoint}/{pet['id']}")
+    for wishlist in context.resp.json():
+        context.resp = requests.delete(f"{rest_endpoint}/{wishlist['id']}")
         expect(context.resp.status_code).to_equal(204)
 
-    # load the database with new pets
+    # load the database with new wishlists
     for row in context.table:
         payload = {
-            "name": row["name"],
-            "category": row["category"],
-            "available": row["available"] in ["True", "true", "1"],
-            "gender": row["gender"],
-            "birthday": row["birthday"],
+            "name": row['name'],
+            "customer_id": int(row['customer_id'])
         }
         context.resp = requests.post(rest_endpoint, json=payload)
+        expect(context.resp.status_code).to_equal(201)
+
+
+@given('the following wishlist items')
+def step_impl(context):
+    """ Load new wishlist items, delete wishlists already deleted all items """
+    # List all of the wishlist items and delete them one by one
+    # load the database with new wishlist items
+    for row in context.table:
+        wishlist_name = row['wishlist_name']
+        queryString = 'name=' + wishlist_name
+        rest_endpoint = f"{context.BASE_URL}/api/wishlists?{queryString}"
+        context.resp = requests.get(rest_endpoint)
+        print(context.resp.json())
+        wishlist_id = context.resp.json()[0]['id']
+        payload = {
+            "name": row['name'],
+            "product_id": int(row['product_id']),
+            "quantity": int(row['quantity']),
+            "price": int(row['price'])
+        }
+        endpoint = f"{context.BASE_URL}/wishlists/{wishlist_id}/items"
+        print(endpoint)
+        context.resp = requests.post(endpoint, json=payload)
+        print(context.resp.json())
         expect(context.resp.status_code).to_equal(201)
