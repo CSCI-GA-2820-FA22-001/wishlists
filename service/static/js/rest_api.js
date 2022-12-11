@@ -188,7 +188,7 @@ $(function () {
     // Clear the form
     // ****************************************
 
-    $("#clear-btn").click(function () {
+    $("#clear-item-btn").click(function () {
         $("#wishlist_id").val("");
         $("#item_id").val("");
         $("#flash_message").empty();

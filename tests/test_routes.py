@@ -111,6 +111,24 @@ class TestWishlistsService(TestCase):
             wishlists.append(new_wishlist)
         return wishlists
 
+    def _create_wishlists_by_name(self, count, name):
+        """Factory method to create wishlists in bulk"""
+        wishlists = []
+        for _ in range(count):
+            test_wishlists = WishlistsFactory()
+            json_req = test_wishlists.serialize()
+            json_req["name"] = name
+            response = self.client.post(BASE_URL, json=json_req)
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test wishlist",
+            )
+            new_wishlist = response.get_json()
+            test_wishlists.id = new_wishlist["id"]
+            wishlists.append(new_wishlist)
+        return wishlists
+
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
@@ -195,6 +213,22 @@ class TestWishlistsService(TestCase):
         wishlist = response.get_json()
         self.assertEqual(wishlist["name"], "Test Rename")
 
+    def test_rename_no_wishlist(self):
+        """It should not rename a non existent wishlist."""
+        response = self.client.put(
+            f"{BASE_URL}/1", json={"name": "Test Rename"}
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_rename_empty_body(self):
+        """It should not rename a non existent wishlist."""
+        test_wishlist = self._create_wishlists(1)[0]
+        response = self.client.put(
+            f"{BASE_URL}/{test_wishlist['id']}", json={}
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
     def test_list_all_wishlists(self):
     
         "It should display all the wishlists when present."
@@ -235,6 +269,31 @@ class TestWishlistsService(TestCase):
         self.assertEqual(
             response.get_json()["message"],
             "No wishlists found for the customer id - " + str(cid),
+        )
+
+    def test_list_wishlist_name(self):
+        "It should display the wishlists for a particular name"
+        name = "wow"
+        test_wishlists = self._create_wishlists_by_name(5, name)
+
+        ids = [w["id"] for w in test_wishlists]
+        response = self.client.get(
+            f"{BASE_URL}", query_string="wishlist_name=" + name
+        )
+
+        resp_wishlists = response.get_json()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp_wishlists["wishlists"]), len(test_wishlists))
+        for r in resp_wishlists["wishlists"]:
+            self.assertEqual(r["name"], name)
+            self.assertIn(r["id"], ids)
+        wname = "blah"
+        response = self.client.get(
+            f"{BASE_URL}", query_string="wishlist_name=" + wname
+        )
+        self.assertEqual(
+            response.get_json()["message"],
+            "No wishlists found with the wishlist name - " + wname,
         )
 
 
@@ -481,6 +540,16 @@ class TestItemsService(TestCase):
         for i in range(0, 1):
             self.assertEqual(item_info["name"][i], n_item[i]["name"])
             self.assertEqual(item_info["pid"][i], n_item[i]["product_id"])
+
+    def test_list_wishlist_no_items(self):
+        """It should not list wishlist items when empty"""
+        test_wishlist = WishlistsFactory()
+        URL = BASE_URL + "/" + str(test_wishlist.id) + "/items"
+        response = self.client.get(URL)
+
+        # Checking Status
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("No items found", response.get_json()["message"])
             
 
     def test_unsupported_HTTP_request(self):
@@ -499,4 +568,13 @@ class TestItemsService(TestCase):
         self.assertEqual(test_wishlist.items, [])
         response = self.client.get(f"{BASE_URL}/{test_wishlist.id}")
         self.assertFalse("items" in response.get_json())
+
+    def test_delete_wishlist_with_items(self):
+        """It should delete a wishlist that has items."""
+        test_wishlist, _ = self._create_wishlist_with_items(3)
+        self.assertEqual(len(test_wishlist.items), 3)
+        response = self.client.delete(f"{BASE_URL}/{test_wishlist.id}")
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
