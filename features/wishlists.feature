@@ -94,3 +94,31 @@ Scenario: Delete a Wishlist
     Then I should see the message "Success"
     And I should see "wish_1" in the results
     And I should not see "wish_3" in the results
+
+Scenario: Create a Wishlist Item
+    When I visit the "Home Page"
+    And I set the "Customer Id" to "5"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    Then the "Wishlist Id" field should be empty
+    And the "Wishlist Name" field should be empty
+    And the "Customer Id" field should be empty
+    When I paste the "Wishlist Id" field
+    And I set the "Item Name" to "item_5"
+    And I set the "Product Id" to "5"
+    And I set the "Item Quantity" to "50"
+    And I set the "Item Price" to "10"
+    And I press the "Create-Item" button
+    Then I should see the message "Success"
+    When I copy the "Item Id" field
+    And I press the "Clear" button
+    Then the "Item Name" field should be empty
+    And the "Product Id" field should be empty
+    And the "Customer Id" field should be empty
+    When I paste the "Item Id" field
+    And I press the "Retrieve-Item" button
+    Then I should see the message "Success"
+    And I should see "item_5" in the "Item Name" field
+    And I should see "5" in the "Product Id" field
