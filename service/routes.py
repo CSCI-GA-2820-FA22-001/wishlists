@@ -9,6 +9,7 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from flask import jsonify, request, url_for, abort
 from service.models import Wishlists, Items, DataValidationError
 from .common import status  # HTTP Status Codes
+import datetime
 
 # Import Flask application
 from . import app
@@ -201,6 +202,13 @@ class WishlistResource(Resource):
         """Deletes a wishlist."""
         app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
         wishlist = Wishlists.find(wishlist_id)
+
+        if wishlist:
+            while wishlist.items:
+                item = wishlist.items[0]
+                wishlist.items.remove(item)
+                item.delete()
+                
         if wishlist:
             wishlist.delete()
 
@@ -227,7 +235,7 @@ class WishlistCollection(Resource):
         if "name" not in payload or "customer_id" not in payload:
             API.abort(status.HTTP_400_BAD_REQUEST, "Missing data to create wishlist.")
         wishlist = Wishlists(
-            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0)
+            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0), created_on=datetime.datetime.now()
         )
         wishlist.create()
 
@@ -326,24 +334,68 @@ def list_items(wishlist_id):
     app.logger.info("Returning wishlist items for wishlist: %s", wishlist_id)
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
 
+
 ######################################################################
-# DELETE A WISHLIST
+# LIST ALL THE WISHLISTS / FOR A CUSTOMER
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
-def delete_wishlists(wishlist_id):
+@app.route("/wishlists", methods=["GET"])
+def list_all_wishlists():
     """
-    Delete a wishlist
-    This endpoint will delete a wishlist based the id specified in the path
+    Retrieve all wishlists
+    This endpoint will return all wishlists
     """
-    app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
-    wishlist = Wishlists.find(wishlist_id)
-    if wishlist:
-        wishlist.delete()
 
-    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
-    return "", status.HTTP_204_NO_CONTENT
+    if request.args:
+        args = request.args
+        customer_id = args.get("customer_id", type=int)
+        app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
+        wishlists = Wishlists.find_by_customer_id(customer_id)
+        wishlists_serialized = [w.serialize() for w in wishlists]
+        app.logger.info(wishlists_serialized)
+        if len(wishlists_serialized) == 0:
+            return {
+                "message": "No wishlists found for the customer id - "
+                + str(customer_id)
+            }, status.HTTP_200_OK
+        # app.logger.info("Returning wishlist:", wishlists)
+        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
+    else:
+        app.logger.info("Request for all wishlists")
+        wishlists = Wishlists.all()
+
+        wishlists_serialized = [w.serialize() for w in wishlists]
+        app.logger.info(wishlists_serialized)
+        if len(wishlists_serialized) == 0:
+            return {"message": "No wishlists found"}, status.HTTP_200_OK
+        return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
 
 
+######################################################################
+# LIST ALL WISHLISTS FOR A CUSTOMER
+######################################################################
+@app.route("/wishlists/customer/<int:customer_id>", methods=["GET"])
+def list_wishlists(customer_id):
+    """
+    Retrieve a single wishlist
+    This endpoint will return a wishlist based on it's id
+    """
+    app.logger.info("Request for wishlists with customer_id: %s", str(customer_id))
+    wishlists = Wishlists.find_by_customer_id(customer_id)
+
+    wishlists_serialized = [w.serialize() for w in wishlists]
+    app.logger.info(wishlists_serialized)
+    if len(wishlists_serialized) == 0:
+        return {
+            "message": "No wishlists found for this customer - " + str(customer_id)
+        }, status.HTTP_200_OK
+    # app.logger.info("Returning wishlist:", wishlists)
+    return jsonify({"wishlists": wishlists_serialized}), status.HTTP_200_OK
+    # return  jsonify("wishlists found for this customer - "+ customer_id), status.HTTP_200_OK
+
+
+######################################################################
+# CLEAR A WISHLIST
+######################################################################
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
 def clear_wishlist(wishlist_id):
     """Clears a wishlist of all items
@@ -365,7 +417,7 @@ def clear_wishlist(wishlist_id):
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE A WISHLIST ITEM
 ######################################################################
 
 # /wishlists/{id}/items/{id}

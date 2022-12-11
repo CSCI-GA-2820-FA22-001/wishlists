@@ -57,13 +57,48 @@
               </div>
             </div>
 
-            <!-- ITEM ID -->
+            <!-- CREATED ON
             <div class="form-group">
-              <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+              <label class="control-label col-sm-2" for="wishlist_created">Wishlist Created On:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="item_id" placeholder="Enter an Item ID">
+                <input type="text" class="form-control" id="wishlist_created" placeholder="2020-04-01">
+              </div>
+            </div> -->
+
+            <!-- SUBMIT BUTTONS -->
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
               </div>
             </div>
+
+            <!-- Search Results -->
+            <div class="table-responsive col-md-12" id="search_results">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th class="col-md-2">Wishlist ID</th>
+                  <th class="col-md-5">Name</th>
+                  <th class="col-md-5">Customer ID</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+
+            <div class="form-horizontal">
+              <div class="form-group">
+                <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="item_id" placeholder="Enter ID of Item">
+                </div>
+                <div class="col-sm-4">
+                  <button type="submit" class="btn btn-primary" id="retrieve-item-btn">Retrieve</button>
+                  <button type="submit" class="btn btn-danger" id="delete-item-btn">Delete</button>
+                </div>
+              </div>
+            </div> <!-- form horizontal -->
 
             <!-- ITEM Name -->
             <div class="form-group">
@@ -80,6 +115,7 @@
                 <input type="text" class="form-control" id="product_id" placeholder="Enter Product ID">
               </div>
             </div>
+
             <!-- ITEM quantity -->
             <div class="form-group">
               <label class="control-label col-sm-2" for="item_quantity">Item quantity:</label>
@@ -96,43 +132,42 @@
               </div>
             </div>
 
-
-           
-            <!-- CREATED ON -->
+            <!-- ITEM CREATED ON
             <div class="form-group">
-              <label class="control-label col-sm-2" for="wishlist_created">Created On:</label>
+              <label class="control-label col-sm-2" for="item_created">Item Created On:</label>
               <div class="col-sm-10">
-                <input type="date" class="form-control" id="wishlist_created" placeholder="2020-04-01">
+                <input type="text" class="form-control" id="item_created" placeholder="2020-04-01">
               </div>
-            </div>
-
+            </div> -->
 
             <!-- SUBMIT BUTTONS -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
-                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
-                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
-                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                <button type="submit" class="btn btn-primary" id="search-item-btn">Search</button>
+                <button type="submit" class="btn btn-primary" id="clear-item-btn">Clear</button>
+                <button type="submit" class="btn btn-success" id="create-item-btn">Create</button>
+                <button type="submit" class="btn btn-warning" id="update-item-btn">Update</button>
               </div>
             </div>
+
+            <!-- Search Results -->
+            <div class="table-responsive col-md-12" id="search_item_results">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th class="col-md-1">Item ID</th>
+                  <th class="col-md-3">Name</th>
+                  <th class="col-md-2">Product ID</th>
+                  <th class="col-md-3">Quantity</th>
+                  <th class="col-md-3">Price</th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+
           </div> <!-- form horizontal -->
         </div> <!-- end well -->
       </div> <!-- end Form -->
-
-      <!-- Search Results -->
-      <div class="table-responsive col-md-12" id="search_results">
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <th class="col-md-1">ID</th>
-            <th class="col-md-4">Name</th>
-            <th class="col-md-4">Customer ID</th>
-            <th class="col-md-3">Created On</th>
-          </tr>
-          </thead>
-        </table>
-      </div>
 
       <footer>
         <br><br>
@@ -145,7 +180,7 @@
   <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
 
   <!-- YOUR REST API -->
-  <script type="text/javascript" src="static,js/rest_api.js"></script>
+  <script type="text/javascript" src="static/js/rest_api.js"></script>
 
   </body>
 </html>

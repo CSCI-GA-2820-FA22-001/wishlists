@@ -31,7 +31,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
-ID_PREFIX = 'pet_'
+WISHLIST_PREFIX = 'wishlist_'
+ITEM_PREFIX = 'item_'
 
 
 @when('I visit the "home page"')
