@@ -40,32 +40,24 @@ Scenario: Create a Wishlist
     And I should see "wish_5" in the "Wishlist Name" field
     And I should see "5" in the "Customer Id" field
 
-# Scenario: List all pets
-#     When I visit the "Home Page"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should not see "leo" in the results
+Scenario: List all Wishlists
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1" in the results
+    And I should see "wish_2" in the results
+    And I should see "wish_3" in the results
+    And I should see "wish_4" in the results
 
-# Scenario: Search for dogs
-#     When I visit the "Home Page"
-#     And I set the "Category" to "dog"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should not see "kitty" in the results
-#     And I should not see "leo" in the results
 
-# Scenario: Search for available
-#     When I visit the "Home Page"
-#     And I select "True" in the "Available" dropdown
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the results
-#     And I should see "kitty" in the results
-#     And I should see "sammy" in the results
-#     And I should not see "leo" in the results
+Scenario: Search for Wishlist with customer_id 3
+    When I visit the "Home Page"
+    And I set the "Customer Id" to "3"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1" in the results
+    And I should see "wish_2" in the results
+    And I should not see "wish_3" in the results
 
 # Scenario: Update a Pet
 #     When I visit the "Home Page"
