@@ -9,6 +9,7 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from flask import jsonify, request, url_for, abort
 from service.models import Wishlists, Items, DataValidationError
 from .common import status  # HTTP Status Codes
+import datetime
 
 # Import Flask application
 from . import app
@@ -201,6 +202,13 @@ class WishlistResource(Resource):
         """Deletes a wishlist."""
         app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
         wishlist = Wishlists.find(wishlist_id)
+
+        if wishlist:
+            while wishlist.items:
+                item = wishlist.items[0]
+                wishlist.items.remove(item)
+                item.delete()
+                
         if wishlist:
             wishlist.delete()
 
@@ -227,7 +235,7 @@ class WishlistCollection(Resource):
         if "name" not in payload or "customer_id" not in payload:
             API.abort(status.HTTP_400_BAD_REQUEST, "Missing data to create wishlist.")
         wishlist = Wishlists(
-            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0)
+            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0), created_on=datetime.datetime.now()
         )
         wishlist.create()
 
@@ -327,23 +335,8 @@ def list_items(wishlist_id):
     return jsonify({"items": items_serialized}), status.HTTP_200_OK
 
 ######################################################################
-# DELETE A WISHLIST
+# CLEAR A WISHLIST
 ######################################################################
-@app.route("/wishlists/<int:wishlist_id>", methods=["DELETE"])
-def delete_wishlists(wishlist_id):
-    """
-    Delete a wishlist
-    This endpoint will delete a wishlist based the id specified in the path
-    """
-    app.logger.info("Request to delete wishlist with id: %s", wishlist_id)
-    wishlist = Wishlists.find(wishlist_id)
-    if wishlist:
-        wishlist.delete()
-
-    app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
-    return "", status.HTTP_204_NO_CONTENT
-
-
 @app.route("/wishlists/<int:wishlist_id>/items", methods=["DELETE"])
 def clear_wishlist(wishlist_id):
     """Clears a wishlist of all items
@@ -365,7 +358,7 @@ def clear_wishlist(wishlist_id):
 
 
 ######################################################################
-# DELETE A WISHLIST
+# DELETE A WISHLIST ITEM
 ######################################################################
 
 # /wishlists/{id}/items/{id}

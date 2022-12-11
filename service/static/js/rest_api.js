@@ -9,8 +9,6 @@ $(function () {
         $("#wishlist_id").val(res.id);
         $("#wishlist_name").val(res.name);
         $("#customer_id").val(res.customer_id);
-        $("#wishlist_created").val(res.created_on);
-        $("#item_list").val(res.items);
     }
 
     // Updates the form with data from the Item response
@@ -21,7 +19,6 @@ $(function () {
         $("#product_id").val(res.product_id);
         $("#item_quantity").val(res.quantity);
         $("#item_price").val(res.price);    
-        $("#item_created").val(res.created_on);
     }
 
     /// Clears all form fields
@@ -68,7 +65,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/wishlists",
+            url: "/api/wishlists",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -104,7 +101,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/wishlists/${wishlist_id}`,
+                url: `/api/wishlists/${wishlist_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -132,14 +129,14 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists/${wishlist_id}`,
+            url: `/api/wishlists?id=${wishlist_id}`,
             contentType: "application/json",
             data: ''
         })
 
         ajax.done(function(res){
             //alert(res.toSource())
-            update_form_data(res)
+            update_form_data(res[0])
             flash_message("Success")
         });
 
@@ -162,14 +159,14 @@ $(function () {
 
         $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}/items`,
+            url: `/api/wishlists/${wishlist_id}/items`,
             contentType: "application/json",
             data: '',
         })
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${wishlist_id}`,
+            url: `/api/wishlists/${wishlist_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -209,15 +206,15 @@ $(function () {
         let queryString = ""
         
         if (id) {
-           get_url = `/wishlists/${id}`
+           get_url = `/api/wishlists?id=${id}`
         }
         else if (customer_id){
             
             queryString += 'customer_id=' + customer_id
-            get_url = `/wishlists?${queryString}`
+            get_url = `/api/wishlists?${queryString}`
         }
         else {
-            get_url = `/wishlists`
+            get_url = `/api/wishlists`
         }
         $("#flash_message").empty();
 
@@ -233,25 +230,16 @@ $(function () {
             $("#search_results").empty();
             let table = '<table class="table table-striped" cellpadding="10">'
             table += '<thead><tr>'
-            table += '<th class="col-md-1">Wishlist ID</th>'
-            table += '<th class="col-md-4">Name</th>'
-            table += '<th class="col-md-4">Customer ID</th>'
-            table += '<th class="col-md-3">Created On</th>'
+            table += '<th class="col-md-2">Wishlist ID</th>'
+            table += '<th class="col-md-5">Name</th>'
+            table += '<th class="col-md-5">Customer ID</th>'
             table += '</tr></thead><tbody>'
             let firstWList = "";
-            if(id){
-                let wishlist = res;
-                table +=  `<tr id="row_0"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td><td>${wishlist.created_on}</td></tr>`;
-                firstWList = wishlist
-            }
-            else{
-                res = res.wishlists
-                for(let i = 0; i < res.length; i++) {
-                    let wishlist = res[i];
-                    table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td><td>${wishlist.created_on}</td></tr>`;
-                    if (i == 0) {
-                        firstWList = wishlist;
-                    }
+            for(let i = 0; i < res.length; i++) {
+                let wishlist = res[i];
+                table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td></tr>`;
+                if (i == 0) {
+                    firstWList = wishlist;
                 }
             }
             table += '</tbody></table>';
