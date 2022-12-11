@@ -81,17 +81,16 @@ Scenario: Search for Wishlist with customer_id 3
 #     And I should see "Boxer" in the results
 #     And I should not see "fido" in the results
 
-# Scenario: Delete a Pet
-#     When I visit the "Home Page"
-#     And I set the "Name" to "fido"
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "fido" in the "Name" field
-#     And I should see "dog" in the "Category" field
-#     When I press the "Delete" button
-#     Then I should see the message "Pet has been Deleted!"
-#     When I press the "Clear" button
-#     And I press the "Search" button
-#     Then I should see the message "Success"
-#     And I should see "kitty" in the results
-#     And I should not see "fido" in the results
+Scenario: Delete a Wishlist
+    When I visit the "Home Page"
+    And I set the "Customer ID" to "4"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_3" in the "Wishlist Name" field
+    When I press the "Delete" button
+    Then I should see the message "Wishlist has been Deleted!"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1" in the results
+    And I should not see "wish_3" in the results
