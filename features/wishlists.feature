@@ -130,6 +130,32 @@ Scenario: Create a Wishlist Item
     Then I should see the message "Success"
     And I should see "item_5" in the "Item Name" field
     And I should see "5" in the "Product Id" field
+    
+ Scenario: Update a Wishlist Item
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_2"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I set the "Item Name" to "item_3"
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_3" in the "Item Name" field
+    When I change "Item Name" to "item_rename"
+    And I press the "Update-Item" button
+    Then I should see the message "Success"
+    When I set the "Wishlist name" to "wish_2"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_rename" in the item results
+    And I should not see "item_3" in the item results
 
 Scenario: List all Wishlists Items in a Wishlist
     When I visit the "Home Page"
@@ -149,11 +175,6 @@ Scenario: List all Wishlists Items in a Wishlist
 Scenario: Search for Wishlist Item with given name
     When I visit the "Home Page"
     And I set the "Wishlist name" to "wish_1"
-    And I press the "Search" button
-    Then I should see the message "Success"
-    When I copy the "Wishlist Id" field
-    And I press the "Clear" button
-    When I paste the "Wishlist Id" field
     And I set the "Item Name" to "item_1"
     And I press the "Search-Item" button
     Then I should see the message "Success"
@@ -188,3 +209,4 @@ Scenario: Delete a Wishlist
     And I should not see "item_1" in the item results
     And I should see "item_2" in the item results
     And I should not see "item_3" in the results
+
