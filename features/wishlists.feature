@@ -160,3 +160,31 @@ Scenario: Search for Wishlist Item with given name
     And I should see "item_1" in the item results
     And I should not see "item_2" in the item results
     And I should not see "item_3" in the item results
+
+
+Scenario: Delete a Wishlist
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I set the "Item Name" to "item_1"
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_1" in the "Item Name" field
+    When I press the "Delete-Item" button
+    Then I should see the message "Item has been Deleted!"
+    When I press the "Clear" button
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should not see "item_1" in the item results
+    And I should see "item_2" in the item results
+    And I should not see "item_3" in the results
