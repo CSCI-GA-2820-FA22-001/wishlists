@@ -9,7 +9,6 @@ from flask_restx import Api, Resource, fields, reqparse, inputs
 from flask import jsonify, request, url_for, abort
 from service.models import Wishlists, Items, DataValidationError
 from .common import status  # HTTP Status Codes
-import datetime
 
 # Import Flask application
 from . import app
@@ -120,10 +119,17 @@ ITEM_MODEL = API.model(
             description="The Unique ID of the wishlist for the item",
         ),
         "product_id": fields.Integer(
-            readOnly=True,
             example=1,
             description="The product id of an item",
         ),
+        "quantity": fields.Integer(
+            example=1,
+            description="The Quantity of the item in a wishlist",
+        ),
+        "price": fields.Integer(
+            example=1,
+            description="The price of each item",
+        )
     },
 )
 CREATE_ITEM_MODEL = API.model(
@@ -140,6 +146,16 @@ CREATE_ITEM_MODEL = API.model(
             example="EXAMPLE_ITEM",
             description="The name of the item",
         ),
+        "quantity": fields.Integer(
+            required=False,
+            example=1,
+            description="The Quantity of the item in a wishlist",
+        ),
+        "price": fields.Integer(
+            required=False,
+            example=1,
+            description="The price of each item",
+        )
     },
 )
 
@@ -281,7 +297,7 @@ class WishlistCollection(Resource):
         if "name" not in payload or "customer_id" not in payload:
             API.abort(status.HTTP_400_BAD_REQUEST, "Missing data to create wishlist.")
         wishlist = Wishlists(
-            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0), created_on=datetime.datetime.now()
+            name=payload.get("name", ""), customer_id=payload.get("customer_id", 0)
         )
         wishlist.create()
 
@@ -391,6 +407,15 @@ class ItemResource(Resource):
             abort(status.HTTP_400_BAD_REQUEST, "No product name passed to update.")
 
         wishlist_product.name = new_name
+
+        new_qty = body.get("quantity", None)
+        new_price = body.get("price", None)
+        if new_qty:
+            wishlist_product.quantity = new_qty
+
+        if new_price:
+            wishlist_product.proce = new_price
+
         wishlist_product.update()
 
         return {}, status.HTTP_202_ACCEPTED
@@ -430,7 +455,12 @@ class ItemCollectionResource(Resource):
     def get(self, wishlist_id):
         """Gets items from a wishlist."""
         app.logger.info("Request for items in wishlist: %s", str(wishlist_id))
-        items = Items.find_by_wishlist_id(wishlist_id)
+        name = request.args.get("name")
+        if(name):
+            items = Items.find_by_name(name)
+        else:
+            items = Items.find_by_wishlist_id(wishlist_id)
+            
         items_serialized = [i.serialize() for i in items]
         app.logger.info(items_serialized)
         if len(items_serialized) == 0:

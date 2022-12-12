@@ -202,15 +202,18 @@ $(function () {
         let id = $("#wishlist_id").val();
         // Customer ID will be empty, since wishlist_id is unique for any wishlist
         let customer_id = $("#customer_id").val();
+        let name = $("#wishlist_name").val();
 
         let queryString = ""
         
         if (id) {
            get_url = `/api/wishlists?id=${id}`
-        }
+        } 
         else if (customer_id){
-            
             queryString += 'customer_id=' + customer_id
+            get_url = `/api/wishlists?${queryString}`
+        } else if (name) {
+            queryString += 'name=' + name
             get_url = `/api/wishlists?${queryString}`
         }
         else {
@@ -282,8 +285,6 @@ $(function () {
             item_price = $("#item_price").val();
         }
         
-        let created_on = new Date();
-
         let data = {
             "name": name,
             "product_id": parseInt(product_id),
@@ -295,7 +296,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: `/wishlists/${wishlist_id}/items`,
+            url: `/api/wishlists/${wishlist_id}/items`,
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -324,7 +325,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/wishlists/${item_id}/items/${item_id}`,
+            url: `/api/wishlists/${item_id}/items/${item_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -356,7 +357,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/wishlists/${item_id}/items/${item_id}`,
+            url: `/api/wishlists/${item_id}/items/${item_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -394,7 +395,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/wishlists/${wishlist_id}/items/${item_id}`,
+                url: `/api/wishlists/${wishlist_id}/items/${item_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -424,14 +425,12 @@ $(function () {
         let queryString = ""
 
         if(item_id){
-            get_url = `/wishlists/${item_id}/items/${item_id}`
+            get_url = `/api/wishlists/${item_id}/items/${item_id}`
         } else if (item_name){
-            // have to implement this in route
-            // delaying to write test as well
             queryString += 'name=' + item_name
-            get_url = `/wishlists/${wishlist_id}/items?${queryString}`
+            get_url = `/api/wishlists/${wishlist_id}/items?${queryString}`
         } else{
-            get_url = `/wishlists/${wishlist_id}/items`
+            get_url = `/api/wishlists/${wishlist_id}/items`
         }
 
         $("#flash_message").empty();
@@ -450,29 +449,27 @@ $(function () {
             table += '<thead><tr>'
             table += '<th class="col-md-1">Item ID</th>'
             table += '<th class="col-md-3">Name</th>'
-            table += '<th class="col-md-1">Product ID</th>'
-            table += '<th class="col-md-1">Quantity</th>'
+            table += '<th class="col-md-4">Product ID</th>'
+            table += '<th class="col-md-2">Quantity</th>'
             table += '<th class="col-md-2">Price</th>'
-            table += '<th class="col-md-5">Created On</th>'
             table += '</tr></thead><tbody>'
             let firstIList = "";
             if(item_id){
                 let item = res;
-                table +=  `<tr id="row_0"><td>${item.id}</td><td>${item.name}</td><td>${item.product_id}</td><td>${item.quantity}</td>
-                <td>${item.price}</td><td>${item.created_on}</td></tr>`;
+                table +=  `<tr id="row_${i}"><td>${item.id}</td><td>${item.name}</td><td>${item.product_id}</td><td>${item.quantity}</td>
+                <td>${item.price}</td></tr>`;
                 firstIList = item;
-            }
-            else{
-                res = res.items;
+            } else{
                 for(let i = 0; i < res.length; i++) {
                     let item = res[i];
                     table +=  `<tr id="row_${i}"><td>${item.id}</td><td>${item.name}</td><td>${item.product_id}</td><td>${item.quantity}</td>
-                    <td>${item.price}</td><td>${item.created_on}</td></tr>`;
+                    <td>${item.price}</td></tr>`;
                     if (i == 0) {
                         firstIList = item;
                     }
                 }
             }
+            
 
             table += '</tbody></table>';
             $("#search_item_results").append(table);

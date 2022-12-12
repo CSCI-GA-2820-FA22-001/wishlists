@@ -59,6 +59,14 @@ Scenario: Search for Wishlist with customer_id 3
     And I should see "wish_2" in the results
     And I should not see "wish_3" in the results
 
+Scenario: Search for Wishlist with wishlist_name
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "wish_1" in the results
+    And I should not see "wish_2" in the results
+
 Scenario: Update a Wishlist
     When I visit the "Home Page"
     And I set the "Wishlist Name" to "wish_1"
@@ -66,7 +74,7 @@ Scenario: Update a Wishlist
     Then I should see the message "Success"
     And I should see "wish_1" in the "Wishlist Name" field
     And I should see "3" in the "Customer Id" field
-    When I change "Wishlist Name" to "wish_1_rename"
+    When I change "Wishlist Name" to "wish_rename"
     And I press the "Update" button
     Then I should see the message "Success"
     When I copy the "Wishlist Id" field
@@ -74,11 +82,11 @@ Scenario: Update a Wishlist
     And I paste the "Wishlist Id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
-    And I should see "wish_1_rename" in the "Wishlist Name" field
+    And I should see "wish_rename" in the "Wishlist Name" field
     When I press the "Clear" button
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "wish_1_rename" in the results
+    And I should see "wish_rename" in the results
     And I should not see "wish_1" in the results
 
 Scenario: Delete a Wishlist
@@ -122,9 +130,8 @@ Scenario: Create a Wishlist Item
     Then I should see the message "Success"
     And I should see "item_5" in the "Item Name" field
     And I should see "5" in the "Product Id" field
-
-
-Scenario: Update a Wishlist Item
+    
+ Scenario: Update a Wishlist Item
     When I visit the "Home Page"
     And I set the "Wishlist name" to "wish_2"
     And I press the "Search" button
@@ -149,3 +156,57 @@ Scenario: Update a Wishlist Item
     Then I should see the message "Success"
     And I should see "item_rename" in the item results
     And I should not see "item_3" in the item results
+
+Scenario: List all Wishlists Items in a Wishlist
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_1" in the item results
+    And I should see "item_2" in the item results
+    And I should not see "item_3" in the results
+
+
+Scenario: Search for Wishlist Item with given name
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_1"
+    And I set the "Item Name" to "item_1"
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_1" in the item results
+    And I should not see "item_2" in the item results
+    And I should not see "item_3" in the item results
+
+
+Scenario: Delete a Wishlist
+    When I visit the "Home Page"
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I set the "Item Name" to "item_1"
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should see "item_1" in the "Item Name" field
+    When I press the "Delete-Item" button
+    Then I should see the message "Item has been Deleted!"
+    When I press the "Clear" button
+    And I set the "Wishlist name" to "wish_1"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Wishlist Id" field
+    And I press the "Clear" button
+    When I paste the "Wishlist Id" field
+    And I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should not see "item_1" in the item results
+    And I should see "item_2" in the item results
+    And I should not see "item_3" in the results
+

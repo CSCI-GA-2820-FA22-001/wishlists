@@ -67,7 +67,7 @@ def step_impl(context):
             "quantity": int(row['quantity']),
             "price": int(row['price'])
         }
-        endpoint = f"{context.BASE_URL}/wishlists/{wishlist_id}/items"
+        endpoint = f"{context.BASE_URL}/api/wishlists/{wishlist_id}/items"
         print(endpoint)
         context.resp = requests.post(endpoint, json=payload)
         print(context.resp.json())
