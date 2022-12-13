@@ -1,7 +1,10 @@
 # NYU DevOps Project - Wishlists
 
+Development Site : http://159.122.178.201:31001/ Production Site : http://159.122.178.201:31002/
+
 [![Build Status](https://github.com/CSCI-GA-2820-FA22-001/wishlists/actions/workflows/ci.yml/badge.svg)](https://github.com/CSCI-GA-2820-FA22-001/wishlists/actions)
 [![codecov](https://codecov.io/gh/CSCI-GA-2820-FA22-001/wishlists/branch/master/graph/badge.svg?token=U9QCD0SANQ)](https://codecov.io/gh/CSCI-GA-2820-FA22-001/wishlists)
+[![Build Status](https://github.com/CSCI-GA-2820-FA22-001/wishlists/actions/workflows/bdd-tests.yml/badge.svg)](https://github.com/CSCI-GA-2820-FA22-001/wishlists/actions)
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
