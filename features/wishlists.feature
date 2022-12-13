@@ -103,6 +103,18 @@ Scenario: Delete a Wishlist
     And I should see "wish_1" in the results
     And I should not see "wish_3" in the results
 
+Scenario: Clear a Wishlist
+    When I visit the "Home Page"
+    And I set the "Wishlist Name" to "wish_2"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "3" in the "Customer Id" field
+    When I press the "Empty" button
+    Then I should see the message "Wishlist has been cleared!"
+    When I press the "Search-Item" button
+    Then I should see the message "Success"
+    And I should not see "item_3" in the item results
+
 Scenario: Create a Wishlist Item
     When I visit the "Home Page"
     And I set the "Customer Id" to "5"

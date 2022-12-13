@@ -129,14 +129,14 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/api/wishlists?id=${wishlist_id}`,
+            url: `/api/wishlists/${wishlist_id}`,
             contentType: "application/json",
             data: ''
         })
 
         ajax.done(function(res){
             //alert(res.toSource())
-            update_form_data(res[0])
+            update_form_data(res)
             flash_message("Success")
         });
 
@@ -207,7 +207,7 @@ $(function () {
         let queryString = ""
         
         if (id) {
-           get_url = `/api/wishlists?id=${id}`
+           get_url = `/api/wishlists/${id}`
         } 
         else if (customer_id){
             queryString += 'customer_id=' + customer_id
@@ -238,11 +238,18 @@ $(function () {
             table += '<th class="col-md-5">Customer ID</th>'
             table += '</tr></thead><tbody>'
             let firstWList = "";
-            for(let i = 0; i < res.length; i++) {
-                let wishlist = res[i];
-                table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td></tr>`;
-                if (i == 0) {
-                    firstWList = wishlist;
+            if (id) {
+                let wishlist = res;
+                table +=  `<tr id="row_0"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td></tr>`;
+                firstWList = wishlist;
+                console.log(firstWList)
+            } else {
+                for(let i = 0; i < res.length; i++) {
+                    let wishlist = res[i];
+                    table +=  `<tr id="row_${i}"><td>${wishlist.id}</td><td>${wishlist.name}</td><td>${wishlist.customer_id}</td></tr>`;
+                    if (i == 0) {
+                        firstWList = wishlist;
+                    }
                 }
             }
             table += '</tbody></table>';
@@ -257,6 +264,38 @@ $(function () {
         });
 
         ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+
+
+    // ****************************************
+    // Clear a Wishlist
+    // ****************************************
+
+    $("#empty-btn").click(function () {
+
+        let wishlist_id = $("#wishlist_id").val();
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/api/wishlists/${wishlist_id}/clear`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            clear_form_data()
+            $("#wishlist_id").val(`${wishlist_id}`);
+            flash_message("Wishlist has been cleared!")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
             flash_message(res.responseJSON.message)
         });
 
@@ -456,7 +495,7 @@ $(function () {
             let firstIList = "";
             if(item_id){
                 let item = res;
-                table +=  `<tr id="row_${i}"><td>${item.id}</td><td>${item.name}</td><td>${item.product_id}</td><td>${item.quantity}</td>
+                table +=  `<tr id="row_0"><td>${item.id}</td><td>${item.name}</td><td>${item.product_id}</td><td>${item.quantity}</td>
                 <td>${item.price}</td></tr>`;
                 firstIList = item;
             } else{

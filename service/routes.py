@@ -222,7 +222,7 @@ class WishlistResource(Resource):
         This endpoint will return a wishlist based on it's id
         """
 
-        app.logger.info("Request to get wishlist with id %d", wishlist_id)
+        app.logger.info("Request to get wishlist with id %s", wishlist_id)
 
         wishlist = Wishlists.find(wishlist_id)
 
@@ -242,7 +242,7 @@ class WishlistResource(Resource):
     @API.marshal_with(WISHLIST_MODEL)
     def put(self, wishlist_id):
         """Updates a wishlist."""
-        app.logger.info("Request to update wishlist %d", wishlist_id)
+        app.logger.info("Request to update wishlist %s", wishlist_id)
         wishlist = Wishlists.find(wishlist_id)
 
         if not wishlist:
@@ -276,6 +276,36 @@ class WishlistResource(Resource):
 
         app.logger.info("Wishlist with ID [%s] delete complete.", wishlist_id)
         return "", status.HTTP_204_NO_CONTENT
+
+
+@API.route("/wishlists/<wishlist_id>/clear", strict_slashes=False)
+@API.param("wishlist_id", "The wishlist ID")
+class WishlistItemsResource(Resource):
+    """Handles all routes for the wishlist model."""
+
+    @API.doc("clear_wishlist")
+    @API.response(204, "Wishlist Cleared.")
+    @API.marshal_list_with(WISHLIST_MODEL)
+    def put(self, wishlist_id):
+        """Clears a wishlist of all the items"""
+        app.logger.info("Request to clear wishlist %s", wishlist_id)
+        wishlist = Wishlists.find(wishlist_id)
+
+        if not wishlist:
+            API.abort(
+                status.HTTP_404_NOT_FOUND,
+                f"Wishlist with id '{wishlist_id}' was not found.",
+            )
+
+        if wishlist:
+            while wishlist.items:
+                item = wishlist.items[0]
+                wishlist.items.remove(item)
+                item.delete()
+
+        app.logger.info("Wishlist cleared.", wishlist_id)
+        return "", status.HTTP_204_NO_CONTENT
+
 
 
 @API.route("/wishlists", strict_slashes=False)
