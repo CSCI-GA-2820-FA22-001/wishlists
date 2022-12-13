@@ -1,4 +1,11 @@
-FROM python:3.9-slim
+FROM rofrano/pipeline-selenium:latest
+
+
+# Add any tools that are needed beyond Python 3.9
+RUN apt-get update && \
+    apt-get install -y sudo vim make git zip tree curl wget jq && \
+    apt-get autoremove -y && \
+    apt-get clean -y
 
 # Added libraries for PostgreSQL before pip install
 RUN apt-get update && apt-get install -y gcc libpq-dev
